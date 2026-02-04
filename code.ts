@@ -1,37 +1,91 @@
-// This plugin will open a window to prompt the user to enter a number, and
-// it will then create that many rectangles on the screen.
+figma.showUI(__html__, { width: 400, height: 400 });
 
-// This file holds the main code for plugins. Code in this file has access to
-// the *figma document* via the figma global object.
-// You can access browser APIs in the <script> tag inside "ui.html" which has a
-// full browser environment (See https://www.figma.com/plugin-docs/how-plugins-run).
+type ComplexityResult = {
+  totalNodes: number;
+  maxDepth: number;
+  score: number;
+};
 
-// This shows the HTML page in "ui.html".
-figma.showUI(__html__);
+figma.ui.onmessage = (msg) => {
+  if (msg.type === "analyze-selection") {
+    const selection = figma.currentPage.selection;
 
-// Calls to "parent.postMessage" from within the HTML page will trigger this
-// callback. The callback will be passed the "pluginMessage" property of the
-// posted message.
-figma.ui.onmessage =  (msg: {type: string, count: number}) => {
-  // One way of distinguishing between different types of messages sent from
-  // your HTML page is to use an object with a "type" property like this.
-  if (msg.type === 'create-shapes') {
-    // This plugin creates rectangles on the screen.
-    const numberOfRectangles = msg.count;
-
-    const nodes: SceneNode[] = [];
-    for (let i = 0; i < numberOfRectangles; i++) {
-      const rect = figma.createRectangle();
-      rect.x = i * 150;
-      rect.fills = [{ type: 'SOLID', color: { r: 0, g: 1, b: 0 } }];
-      figma.currentPage.appendChild(rect);
-      nodes.push(rect);
+    if (selection.length !== 1) {
+      figma.ui.postMessage({
+        type: "error",
+        message: "Please select exactly one frame or group.",
+      });
+      return;
     }
-    figma.currentPage.selection = nodes;
-    figma.viewport.scrollAndZoomIntoView(nodes);
+
+    const root = selection[0];
+
+    if (!("children" in root)) {
+      figma.ui.postMessage({
+        type: "error",
+        message: "Selected node has no children.",
+      });
+      return;
+    }
+
+    const result = analyzeNode(root);
+
+    figma.ui.postMessage({
+      type: "result",
+      data: result,
+    });
+  }
+};
+
+function analyzeNode(root: SceneNode): ComplexityResult {
+  let totalNodes = 0;
+  let maxDepth = 0;
+  let score = 0;
+
+  function traverse(node: SceneNode, depth: number) {
+    totalNodes++;
+    maxDepth = Math.max(maxDepth, depth);
+
+    // Base score per node
+    score += 1;
+
+    // Complexity weighting by type
+    switch (node.type) {
+      case "TEXT":
+        score += 2;
+        break;
+      case "VECTOR":
+      case "BOOLEAN_OPERATION":
+        score += 3;
+        break;
+      case "COMPONENT":
+      case "COMPONENT_SET":
+        score += 4;
+        break;
+      case "INSTANCE":
+        score += 2;
+        break;
+      case "FRAME":
+      case "GROUP":
+        score += 1;
+        break;
+    }
+
+    // Depth penalty (indentation complexity)
+    score += depth * 0.5;
+
+    if ("children" in node) {
+      for (const child of node.children) {
+        traverse(child, depth + 1);
+      }
+    }
   }
 
-  // Make sure to close the plugin when you're done. Otherwise the plugin will
-  // keep running, which shows the cancel button at the bottom of the screen.
-  figma.closePlugin();
-};
+  traverse(root, 0);
+
+  return {
+    totalNodes,
+    maxDepth,
+    score: Math.round(score),
+  };
+}
