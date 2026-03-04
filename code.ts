@@ -1,9 +1,11 @@
-figma.showUI(__html__, { width: 400, height: 400 });
+figma.showUI(__html__, { width: 400, height: 500 });
 
-type ComplexityResult = {
+type AnalysisResult = {
   totalNodes: number;
   maxDepth: number;
-  score: number;
+  componentProportion: number;   // 0–1, fraction of frames that are components/instances
+  autoLayoutProportion: number;  // 0–1, fraction of frames using auto-layout
+  numberedNameCount: number;     // frames whose name contains a digit
 };
 
 figma.ui.onmessage = (msg) => {
@@ -19,9 +21,6 @@ figma.ui.onmessage = (msg) => {
     }
 
     const root = selection[0];
-
-    console.log("hello");
-    
 
     if (!("children" in root)) {
       figma.ui.postMessage({
@@ -40,42 +39,52 @@ figma.ui.onmessage = (msg) => {
   }
 };
 
-function analyzeNode(root: SceneNode): ComplexityResult {
+function analyzeNode(root: SceneNode): AnalysisResult {
   let totalNodes = 0;
   let maxDepth = 0;
-  let score = 0;
+
+  // Frame-level counters
+  let totalFrameLike = 0;       // FRAME, COMPONENT, COMPONENT_SET, INSTANCE
+  let componentCount = 0;       // COMPONENT, COMPONENT_SET, INSTANCE
+  let autoLayoutCount = 0;      // frames with layoutMode !== 'NONE'
+  let numberedNameCount = 0;    // any node whose name contains a digit
 
   function traverse(node: SceneNode, depth: number) {
     totalNodes++;
     maxDepth = Math.max(maxDepth, depth);
 
-    // Base score per node
-    score += 1;
-
-    // Complexity weighting by type
-    switch (node.type) {
-      case "TEXT":
-        score += 2;
-        break;
-      case "VECTOR":
-      case "BOOLEAN_OPERATION":
-        score += 3;
-        break;
-      case "COMPONENT":
-      case "COMPONENT_SET":
-        score += 4;
-        break;
-      case "INSTANCE":
-        score += 2;
-        break;
-      case "FRAME":
-      case "GROUP":
-        score += 1;
-        break;
+    // Count nodes whose name contains a number
+    if (/\d/.test(node.name)) {
+      numberedNameCount++;
     }
 
-    // Depth penalty (indentation complexity)
-    score += depth * 0.5;
+    // Frame-like nodes
+    const isFrameLike =
+      node.type === "FRAME" ||
+      node.type === "COMPONENT" ||
+      node.type === "COMPONENT_SET" ||
+      node.type === "INSTANCE";
+
+    if (isFrameLike) {
+      totalFrameLike++;
+
+      // Components / instances
+      if (
+        node.type === "COMPONENT" ||
+        node.type === "COMPONENT_SET" ||
+        node.type === "INSTANCE"
+      ) {
+        componentCount++;
+      }
+
+      // Auto-layout: layoutMode is 'HORIZONTAL' or 'VERTICAL'
+      if (
+        "layoutMode" in node &&
+        (node as FrameNode).layoutMode !== "NONE"
+      ) {
+        autoLayoutCount++;
+      }
+    }
 
     if ("children" in node) {
       for (const child of node.children) {
@@ -86,9 +95,16 @@ function analyzeNode(root: SceneNode): ComplexityResult {
 
   traverse(root, 0);
 
+  const componentProportion =
+    totalFrameLike > 0 ? componentCount / totalFrameLike : 0;
+  const autoLayoutProportion =
+    totalFrameLike > 0 ? autoLayoutCount / totalFrameLike : 0;
+
   return {
     totalNodes,
     maxDepth,
-    score: Math.round(score),
+    componentProportion,
+    autoLayoutProportion,
+    numberedNameCount,
   };
 }
