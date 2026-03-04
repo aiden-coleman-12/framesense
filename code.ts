@@ -20,6 +20,9 @@ figma.ui.onmessage = (msg) => {
 
     const root = selection[0];
 
+    console.log("hello");
+    
+
     if (!("children" in root)) {
       figma.ui.postMessage({
         type: "error",
