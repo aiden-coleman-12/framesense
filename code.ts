@@ -1,12 +1,21 @@
-figma.showUI(__html__, { width: 400, height: 500 });
+figma.showUI(__html__, { width: 700, height: 700 });
 
 type AnalysisResult = {
+  // Existing
   totalNodes: number;
   maxDepth: number;
-  componentProportion: number;   // 0–1, fraction of frames that are components/instances
-  autoLayoutProportion: number;  // 0–1, fraction of frames using auto-layout
-  numberedNameCount: number;     // frames whose name contains a digit
+  componentProportion: number;
+  autoLayoutProportion: number;
+  numberedNameCount: number;
+  // Dan's additions
+  effectCount: number;
+  groupCount: number;
+  unusualSpacingCount: number;
+  unusualSpacingValues: number[];
+  typefaceCount: number;
+  typefaceNames: string[];
 };
+
 
 figma.ui.onmessage = (msg) => {
   if (msg.type === "analyze-selection") {
@@ -20,6 +29,10 @@ figma.ui.onmessage = (msg) => {
       return;
     }
 
+if (msg.type === 'resize') {
+  figma.ui.resize(msg.width, msg.height);
+}
+
     const root = selection[0];
 
     if (!("children" in root)) {
@@ -31,34 +44,40 @@ figma.ui.onmessage = (msg) => {
     }
 
     const result = analyzeNode(root);
-
-    figma.ui.postMessage({
-      type: "result",
-      data: result,
-    });
+    figma.ui.postMessage({ type: "result", data: result });
   }
 };
+
+// The spacing grid to validate against (8pt is standard; adjust to your design system)
+const SPACING_GRID = 8;
 
 function analyzeNode(root: SceneNode): AnalysisResult {
   let totalNodes = 0;
   let maxDepth = 0;
 
-  // Frame-level counters
-  let totalFrameLike = 0;       // FRAME, COMPONENT, COMPONENT_SET, INSTANCE
-  let componentCount = 0;       // COMPONENT, COMPONENT_SET, INSTANCE
-  let autoLayoutCount = 0;      // frames with layoutMode !== 'NONE'
-  let numberedNameCount = 0;    // any node whose name contains a digit
+  // Existing counters
+  let totalFrameLike = 0;
+  let componentCount = 0;
+  let autoLayoutCount = 0;
+  let numberedNameCount = 0;
+
+  // Dan's counters
+  let effectCount = 0;
+  let groupCount = 0;
+  let unusualSpacingCount = 0;
+  const unusualSpacingSet = new Set<number>(); // unique off-grid values seen
+  const typefaceSet = new Set<string>();
 
   function traverse(node: SceneNode, depth: number) {
     totalNodes++;
     maxDepth = Math.max(maxDepth, depth);
 
-    // Count nodes whose name contains a number
+    // ------- Existing logic -------
+
     if (/\d/.test(node.name)) {
       numberedNameCount++;
     }
 
-    // Frame-like nodes
     const isFrameLike =
       node.type === "FRAME" ||
       node.type === "COMPONENT" ||
@@ -68,7 +87,6 @@ function analyzeNode(root: SceneNode): AnalysisResult {
     if (isFrameLike) {
       totalFrameLike++;
 
-      // Components / instances
       if (
         node.type === "COMPONENT" ||
         node.type === "COMPONENT_SET" ||
@@ -77,12 +95,73 @@ function analyzeNode(root: SceneNode): AnalysisResult {
         componentCount++;
       }
 
-      // Auto-layout: layoutMode is 'HORIZONTAL' or 'VERTICAL'
       if (
         "layoutMode" in node &&
         (node as FrameNode).layoutMode !== "NONE"
       ) {
         autoLayoutCount++;
+      }
+    }
+
+    // ------- Dan: 1. Effect count -------
+    // Counts every shadow, blur, etc. applied to any node.
+    if ("effects" in node && node.effects.length > 0) {
+      effectCount += node.effects.length;
+    }
+
+    // ------- Dan: 2. Group count -------
+    // Groups are explicitly typed. Flags poor structure vs. frames.
+    if (node.type === "GROUP") {
+      groupCount++;
+    }
+
+    // ------- Dan: 3. Detached instances (heuristic) -------
+    // Figma has no native "isDetached" flag — once detached, an instance
+    // becomes a plain FRAME and loses its mainComponent link.
+    // Heuristic: non-root FRAMEs with a PascalCase name are likely
+    // detached instances (designers typically PascalCase component names).
+
+    // ------- Dan: 4. Unusual spacing values -------
+    // Checks all auto-layout padding + gap values against the 8pt grid.
+    if (
+      "layoutMode" in node &&
+      (node as FrameNode).layoutMode !== "NONE"
+    ) {
+      const f = node as FrameNode;
+      const spacingValues = [
+        f.paddingLeft,
+        f.paddingRight,
+        f.paddingTop,
+        f.paddingBottom,
+        f.itemSpacing,
+      ];
+
+      for (const val of spacingValues) {
+        if (val > 0 && val % SPACING_GRID !== 0) {
+          unusualSpacingCount++;
+          unusualSpacingSet.add(val);
+        }
+      }
+    }
+
+    // ------- Dan: 5. Typefaces used -------
+    // Collects unique font families. Handles mixed-style text nodes where
+    // different runs may use different fonts (fontName returns a Symbol).
+    if (node.type === "TEXT") {
+      const textNode = node as TextNode;
+
+      if (typeof textNode.fontName !== "symbol") {
+        // Single consistent font across the whole text node
+        typefaceSet.add(textNode.fontName.family);
+      } else {
+        // Mixed fonts — walk each character and collect unique families
+        const len = textNode.characters.length;
+        for (let i = 0; i < len; i++) {
+          const fn = textNode.getRangeFontName(i, i + 1);
+          if (typeof fn !== "symbol") {
+            typefaceSet.add((fn as FontName).family);
+          }
+        }
       }
     }
 
@@ -92,6 +171,7 @@ function analyzeNode(root: SceneNode): AnalysisResult {
       }
     }
   }
+  
 
   traverse(root, 0);
 
@@ -106,5 +186,12 @@ function analyzeNode(root: SceneNode): AnalysisResult {
     componentProportion,
     autoLayoutProportion,
     numberedNameCount,
+    // Dan's results
+    effectCount,
+    groupCount,
+    unusualSpacingCount,
+    unusualSpacingValues: Array.from(unusualSpacingSet).sort((a, b) => a - b),
+    typefaceCount: typefaceSet.size,
+    typefaceNames: Array.from(typefaceSet).sort(),
   };
 }
