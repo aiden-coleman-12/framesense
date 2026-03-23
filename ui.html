@@ -53,7 +53,7 @@
         letter-spacing: 0.03em;
         border-radius: 8px;
         border: none;
-        background: #6c38f5;
+        background: #38f542;
         color: #0f0f0f;
         cursor: pointer;
         transition: opacity 0.15s, transform 0.1s;
@@ -62,12 +62,27 @@
       button:hover  { opacity: 0.88; }
       button:active { transform: scale(0.98); }
 
+      /* ── section divider ── */
+      .section-title {
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #444;
+        margin: 18px 0 10px;
+      }
+
       /* ── metric grid ── */
       .grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
         margin-top: 18px;
+      }
+
+      /* second grid has no top margin — section-title provides it */
+      .grid + .section-title + .grid {
+        margin-top: 0;
       }
 
       .metric {
@@ -88,12 +103,17 @@
         transform: translateY(0);
       }
 
-      /* stagger delays */
-      .metric:nth-child(1) { transition-delay: 0.00s; }
-      .metric:nth-child(2) { transition-delay: 0.06s; }
-      .metric:nth-child(3) { transition-delay: 0.12s; }
-      .metric:nth-child(4) { transition-delay: 0.18s; }
-      .metric:nth-child(5) { transition-delay: 0.24s; }
+      /* stagger across all metrics (up to 10) */
+      .metric:nth-child(1)  { transition-delay: 0.00s; }
+      .metric:nth-child(2)  { transition-delay: 0.06s; }
+      .metric:nth-child(3)  { transition-delay: 0.12s; }
+      .metric:nth-child(4)  { transition-delay: 0.18s; }
+      .metric:nth-child(5)  { transition-delay: 0.24s; }
+      .metric:nth-child(6)  { transition-delay: 0.30s; }
+      .metric:nth-child(7)  { transition-delay: 0.36s; }
+      .metric:nth-child(8)  { transition-delay: 0.42s; }
+      .metric:nth-child(9)  { transition-delay: 0.48s; }
+      .metric:nth-child(10) { transition-delay: 0.54s; }
 
       /* wide card spans both columns */
       .metric.wide { grid-column: 1 / -1; }
@@ -104,6 +124,21 @@
         letter-spacing: 0.1em;
         text-transform: uppercase;
         color: #666;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      /* "DAN" author badge */
+      .author {
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #6c38f5;
+        background: rgba(108, 56, 245, 0.12);
+        border-radius: 4px;
+        padding: 1px 5px;
       }
 
       .metric-value {
@@ -113,6 +148,11 @@
         color: #f0ede8;
         line-height: 1;
       }
+
+      /* severity tinting on the value */
+      .metric-value.warn   { color: #f5a623; }
+      .metric-value.danger { color: #ff6b6b; }
+      .metric-value.ok     { color: #38f542; }
 
       /* proportion bar */
       .bar-track {
@@ -135,6 +175,24 @@
         font-size: 10px;
         color: #555;
         font-family: 'DM Mono', monospace;
+      }
+
+      /* tag list (typefaces / spacing values) */
+      .tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: 2px;
+      }
+
+      .tag {
+        font-family: 'DM Mono', monospace;
+        font-size: 10px;
+        background: #222;
+        border: 1px solid #333;
+        border-radius: 5px;
+        padding: 2px 7px;
+        color: #999;
       }
 
       /* error */
@@ -174,6 +232,18 @@
         return (val * 100).toFixed(1) + '%';
       }
 
+      // Returns a CSS class name based on thresholds (low = ok, mid = warn, high = danger)
+      function severity(val, warnAt, dangerAt) {
+        if (val >= dangerAt) return 'danger';
+        if (val >= warnAt)   return 'warn';
+        return 'ok';
+      }
+
+      function renderTags(items) {
+        if (!items || items.length === 0) return '';
+        return `<div class="tag-list">${items.map(t => `<span class="tag">${t}</span>`).join('')}</div>`;
+      }
+
       onmessage = (event) => {
         const msg = event.data.pluginMessage;
 
@@ -183,43 +253,95 @@
         }
 
         if (msg.type === 'result') {
-          const { totalNodes, maxDepth, componentProportion, autoLayoutProportion, numberedNameCount } = msg.data;
+          const {
+            totalNodes,
+            maxDepth,
+            componentProportion,
+            autoLayoutProportion,
+            numberedNameCount,
+            // Dan's metrics
+            effectCount,
+            groupCount,
+            detachedInstanceCount,
+            unusualSpacingCount,
+            unusualSpacingValues,
+            typefaceCount,
+            typefaceNames,
+          } = msg.data;
+
+          // Format off-grid spacing values as "3px, 7px …"
+          const spacingTags = (unusualSpacingValues || []).map(v => v + 'px');
 
           output.innerHTML = `
+            <!-- ── Section 1: Structure ── -->
             <div class="grid">
-              <div class="metric" id="m0">
+              <div class="metric">
                 <span class="metric-label">Elements</span>
                 <span class="metric-value">${totalNodes}</span>
               </div>
 
-              <div class="metric" id="m1">
+              <div class="metric">
                 <span class="metric-label">Max depth</span>
-                <span class="metric-value">${maxDepth}</span>
+                <span class="metric-value ${severity(maxDepth, 8, 14)}">${maxDepth}</span>
               </div>
 
-              <div class="metric" id="m2">
+              <div class="metric">
                 <span class="metric-label">Components</span>
                 <span class="metric-value">${pct(componentProportion)}</span>
                 <div class="bar-track"><div class="bar-fill" id="bar-comp"></div></div>
                 <span class="metric-sub">of all frame-like nodes</span>
               </div>
 
-              <div class="metric" id="m3">
+              <div class="metric">
                 <span class="metric-label">Auto-layout</span>
                 <span class="metric-value">${pct(autoLayoutProportion)}</span>
                 <div class="bar-track"><div class="bar-fill" id="bar-auto"></div></div>
                 <span class="metric-sub">of all frame-like nodes</span>
               </div>
 
-              <div class="metric wide" id="m4">
+              <div class="metric wide">
                 <span class="metric-label">Numbered names</span>
-                <span class="metric-value">${numberedNameCount}</span>
+                <span class="metric-value ${severity(numberedNameCount, 5, 12)}">${numberedNameCount}</span>
                 <span class="metric-sub">layers whose name contains a digit</span>
+              </div>
+            </div>
+
+            <!-- ── Section 2: Dan's metrics ── -->
+            <div class="section-title">Code complexity</div>
+            <div class="grid">
+              <div class="metric">
+                <span class="metric-label">Effects <span class="author"></span></span>
+                <span class="metric-value ${severity(effectCount, 6, 16)}">${effectCount}</span>
+                <span class="metric-sub">shadows, blurs applied</span>
+              </div>
+
+              <div class="metric">
+                <span class="metric-label">Groups <span class="author"></span></span>
+                <span class="metric-value ${severity(groupCount, 1, 6)}">${groupCount}</span>
+                <span class="metric-sub">use frames instead</span>
+              </div>
+
+              <div class="metric">
+                <span class="metric-label">Detached <span class="author"></span></span>
+                <span class="metric-value ${severity(detachedInstanceCount, 3, 9)}">${detachedInstanceCount}</span>
+                <span class="metric-sub">detached instances (~)</span>
+              </div>
+
+              <div class="metric">
+                <span class="metric-label">Off-grid spacing <span class="author"></span></span>
+                <span class="metric-value ${severity(unusualSpacingCount, 4, 12)}">${unusualSpacingCount}</span>
+                ${renderTags(spacingTags.slice(0, 6))}
+              </div>
+
+              <div class="metric wide">
+                <span class="metric-label">Typefaces <span class="author"></span></span>
+                <span class="metric-value ${severity(typefaceCount, 3, 5)}">${typefaceCount}</span>
+                ${renderTags(typefaceNames)}
               </div>
             </div>
           `;
 
-          // trigger entrance animation + bar widths on next frame
+          // Animate entrance + bars on next frame
           requestAnimationFrame(() => {
             document.querySelectorAll('.metric').forEach(el => el.classList.add('visible'));
             document.getElementById('bar-comp').style.width = pct(componentProportion);
