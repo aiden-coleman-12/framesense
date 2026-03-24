@@ -14,8 +14,10 @@ type AnalysisResult = {
   unusualSpacingValues: number[];
   typefaceCount: number;
   typefaceNames: string[];
+  // Zach's additions
+  accessibilityViolations: number;
+  accessibilityDetails: string[];
 };
-
 
 figma.ui.onmessage = (msg) => {
   if (msg.type === "analyze-selection") {
@@ -29,9 +31,9 @@ figma.ui.onmessage = (msg) => {
       return;
     }
 
-if (msg.type === 'resize') {
-  figma.ui.resize(msg.width, msg.height);
-}
+    if (msg.type === "resize") {
+      figma.ui.resize(msg.width, msg.height);
+    }
 
     const root = selection[0];
 
@@ -48,8 +50,21 @@ if (msg.type === 'resize') {
   }
 };
 
+// Zach's Additions
 // The spacing grid to validate against (8pt is standard; adjust to your design system)
 const SPACING_GRID = 8;
+
+function relativeLuminance(r: number, g: number, b: number): number {
+  const toLinear = (c: number) =>
+    c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+}
+
+function contrastRatio(lum1: number, lum2: number): number {
+  const lighter = Math.max(lum1, lum2);
+  const darker = Math.min(lum1, lum2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
 
 function analyzeNode(root: SceneNode): AnalysisResult {
   let totalNodes = 0;
@@ -65,8 +80,12 @@ function analyzeNode(root: SceneNode): AnalysisResult {
   let effectCount = 0;
   let groupCount = 0;
   let unusualSpacingCount = 0;
-  const unusualSpacingSet = new Set<number>(); // unique off-grid values seen
+  const unusualSpacingSet = new Set<number>();
   const typefaceSet = new Set<string>();
+
+  // Zach's counters
+  let accessibilityViolations = 0;
+  const accessibilityDetails: string[] = [];
 
   function traverse(node: SceneNode, depth: number) {
     totalNodes++;
@@ -151,15 +170,65 @@ function analyzeNode(root: SceneNode): AnalysisResult {
       const textNode = node as TextNode;
 
       if (typeof textNode.fontName !== "symbol") {
-        // Single consistent font across the whole text node
         typefaceSet.add(textNode.fontName.family);
       } else {
-        // Mixed fonts — walk each character and collect unique families
         const len = textNode.characters.length;
         for (let i = 0; i < len; i++) {
           const fn = textNode.getRangeFontName(i, i + 1);
           if (typeof fn !== "symbol") {
             typefaceSet.add((fn as FontName).family);
+          }
+        }
+      }
+    }
+
+    // ------- Zach: 6. Accessibility violations -------
+
+    // 6a. Touch target size
+    const isTappable =
+      node.type === "INSTANCE" ||
+      node.type === "COMPONENT" ||
+      (node.type === "FRAME" && "layoutMode" in node);
+
+    if (isTappable && "width" in node && "height" in node) {
+      if (node.width < 44 || node.height < 44) {
+        accessibilityViolations++;
+        accessibilityDetails.push(
+          `Touch target too small: "${node.name}" (${Math.round(node.width)}×${Math.round(node.height)}px)`
+        );
+      }
+    }
+
+    // 6b. Text contrast
+    if (node.type === "TEXT" && "fills" in node) {
+      const fills = node.fills;
+      if (Array.isArray(fills)) {
+        for (const fill of fills) {
+          if (fill.type === "SOLID" && fill.visible !== false) {
+            const { r, g, b } = fill.color;
+            const opacity = fill.opacity ?? 1;
+
+            const blendedR = r * opacity + (1 - opacity);
+            const blendedG = g * opacity + (1 - opacity);
+            const blendedB = b * opacity + (1 - opacity);
+
+            const textLum = relativeLuminance(blendedR, blendedG, blendedB);
+            const bgLum = 1; // assuming white background
+
+            const ratio = contrastRatio(textLum, bgLum);
+
+            const textNode = node as TextNode;
+            const fontSize =
+              typeof textNode.fontSize === "number" ? textNode.fontSize : 16;
+            const isLargeText = fontSize >= 18 || fontSize >= 14;
+            const threshold = isLargeText ? 3 : 4.5;
+
+            if (ratio < threshold) {
+              accessibilityViolations++;
+              accessibilityDetails.push(
+                `Low contrast: "${node.name}" ratio ${ratio.toFixed(2)}:1 (needs ${threshold}:1)`
+              );
+            }
           }
         }
       }
@@ -171,7 +240,6 @@ function analyzeNode(root: SceneNode): AnalysisResult {
       }
     }
   }
-  
 
   traverse(root, 0);
 
@@ -193,5 +261,8 @@ function analyzeNode(root: SceneNode): AnalysisResult {
     unusualSpacingValues: Array.from(unusualSpacingSet).sort((a, b) => a - b),
     typefaceCount: typefaceSet.size,
     typefaceNames: Array.from(typefaceSet).sort(),
+    // Zach's results
+    accessibilityViolations,
+    accessibilityDetails,
   };
 }
