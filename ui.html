@@ -135,7 +135,7 @@
         padding: 1px 5px;
       }
 
-      .author.zach {
+      .author {
         color: #f538a0;
         background: rgba(245, 56, 160, 0.12);
       }
@@ -346,7 +346,7 @@
             <div class="section-title">Accessibility</div>
             <div class="grid">
               <div class="metric wide">
-                <span class="metric-label">Violations <span class="author zach">Zach</span></span>
+                <span class="metric-label">Violations <span class="author"></span></span>
                 <span class="metric-value ${severity(accessibilityViolations, 1, 5)}">${accessibilityViolations}</span>
                 <span class="metric-sub">contrast + touch target issues</span>
                 ${renderTags((accessibilityDetails || []).slice(0, 6), 'violation')}
