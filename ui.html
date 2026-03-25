@@ -429,10 +429,15 @@
                 <div class="bar-track"><div class="bar-fill" id="bar-auto"></div></div>
                 <span class="metric-sub">of all frame-like nodes</span>
               </div>
-              <div class="metric wide">
+              <div class="metric">
                 <span class="metric-label">Numbered names</span>
                 <span class="metric-value ${severity(numberedNameCount, 5, 12)}">${numberedNameCount}</span>
                 <span class="metric-sub">layers whose name contains a digit</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Typefaces</span>
+                <span class="metric-value ${severity(typefaceCount, 3, 5)}">${typefaceCount}</span>
+                ${renderTags(typefaceNames)}
               </div>
             </div>
 
@@ -449,16 +454,12 @@
                 <span class="metric-value ${severity(groupCount, 1, 6)}">${groupCount}</span>
                 <span class="metric-sub">use frames instead</span>
               </div>
-              <div class="metric">
+              <div class="metric wide">
                 <span class="metric-label">Off-grid spacing</span>
                 <span class="metric-value ${severity(unusualSpacingCount, 4, 12)}">${unusualSpacingCount}</span>
                 ${renderTags(spacingTags.slice(0, 6))}
               </div>
-              <div class="metric wide">
-                <span class="metric-label">Typefaces</span>
-                <span class="metric-value ${severity(typefaceCount, 3, 5)}">${typefaceCount}</span>
-                ${renderTags(typefaceNames)}
-              </div>
+            
             </div>
 
             <!-- ── Section 3: Accessibility ── -->
