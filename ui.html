@@ -30,8 +30,7 @@
       }
 
       .dot {
-        width: 6px;
-        height: 6px;
+        width: 6px; height: 6px;
         border-radius: 50%;
         background: #6c38f5;
         display: inline-block;
@@ -41,10 +40,10 @@
 
       @keyframes pulse {
         0%, 100% { opacity: 1; }
-        50% { opacity: 0.3; }
+        50%       { opacity: 0.3; }
       }
 
-      button {
+      button#analyze {
         width: 100%;
         padding: 11px 14px;
         font-family: 'DM Sans', sans-serif;
@@ -58,10 +57,10 @@
         cursor: pointer;
         transition: opacity 0.15s, transform 0.1s;
       }
+      button#analyze:hover  { opacity: 0.88; }
+      button#analyze:active { transform: scale(0.98); }
 
-      button:hover  { opacity: 0.88; }
-      button:active { transform: scale(0.98); }
-
+      /* ── section titles ── */
       .section-title {
         font-size: 10px;
         font-weight: 500;
@@ -71,15 +70,12 @@
         margin: 18px 0 10px;
       }
 
+      /* ── metric grid ── */
       .grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
         margin-top: 18px;
-      }
-
-      .grid + .section-title + .grid {
-        margin-top: 0;
       }
 
       .metric {
@@ -94,11 +90,7 @@
         transform: translateY(6px);
         transition: opacity 0.3s ease, transform 0.3s ease;
       }
-
-      .metric.visible {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      .metric.visible { opacity: 1; transform: translateY(0); }
 
       .metric:nth-child(1)  { transition-delay: 0.00s; }
       .metric:nth-child(2)  { transition-delay: 0.06s; }
@@ -129,15 +121,10 @@
         font-weight: 600;
         letter-spacing: 0.06em;
         text-transform: uppercase;
-        color: #6c38f5;
-        background: rgba(108, 56, 245, 0.12);
-        border-radius: 4px;
-        padding: 1px 5px;
-      }
-
-      .author {
         color: #f538a0;
         background: rgba(245, 56, 160, 0.12);
+        border-radius: 4px;
+        padding: 1px 5px;
       }
 
       .metric-value {
@@ -147,7 +134,6 @@
         color: #f0ede8;
         line-height: 1;
       }
-
       .metric-value.warn   { color: #f5a623; }
       .metric-value.danger { color: #ff6b6b; }
       .metric-value.ok     { color: #38f542; }
@@ -159,7 +145,6 @@
         overflow: hidden;
         margin-top: 4px;
       }
-
       .bar-fill {
         height: 100%;
         border-radius: 99px;
@@ -180,7 +165,6 @@
         gap: 4px;
         margin-top: 2px;
       }
-
       .tag {
         font-family: 'DM Mono', monospace;
         font-size: 10px;
@@ -190,11 +174,123 @@
         padding: 2px 7px;
         color: #999;
       }
-
       .tag.violation {
         color: #ff6b6b;
         border-color: #4a1a1a;
         background: #1f0f0f;
+      }
+
+      /* ── violation list panel ── */
+      .vlist-section {
+        margin-top: 24px;
+        padding-bottom: 8px;
+      }
+
+      /* collapsible group */
+      .vgroup {
+        margin-bottom: 8px;
+        border: 1px solid #222;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .vgroup-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        background: #161616;
+        cursor: pointer;
+        user-select: none;
+        transition: background 0.15s;
+      }
+      .vgroup-header:hover { background: #1e1e1e; }
+
+      .vgroup-title {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #888;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .vgroup-count {
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        font-weight: 500;
+        color: #f5a623;
+        background: rgba(245, 166, 35, 0.1);
+        border-radius: 4px;
+        padding: 1px 6px;
+      }
+      .vgroup-count.danger {
+        color: #ff6b6b;
+        background: rgba(255, 107, 107, 0.1);
+      }
+      .vgroup-count.ok {
+        color: #38f542;
+        background: rgba(56, 245, 66, 0.08);
+      }
+
+      .vgroup-chevron {
+        font-size: 10px;
+        color: #444;
+        transition: transform 0.2s;
+      }
+      .vgroup.open .vgroup-chevron { transform: rotate(180deg); }
+
+      .vgroup-body {
+        display: none;
+        flex-direction: column;
+      }
+      .vgroup.open .vgroup-body { display: flex; }
+
+      /* individual node row */
+      .vnode {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 14px;
+        border-top: 1px solid #1e1e1e;
+        cursor: pointer;
+        transition: background 0.12s;
+      }
+      .vnode:hover { background: #1a1a1a; }
+      .vnode:active { background: #222; }
+
+      .vnode-icon {
+        font-size: 11px;
+        flex-shrink: 0;
+        opacity: 0.5;
+      }
+
+      .vnode-name {
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        color: #bbb;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+      }
+
+      .vnode-arrow {
+        font-size: 10px;
+        color: #333;
+        flex-shrink: 0;
+        transition: color 0.12s;
+      }
+      .vnode:hover .vnode-arrow { color: #666; }
+
+      .empty-state {
+        padding: 10px 14px;
+        border-top: 1px solid #1e1e1e;
+        font-size: 11px;
+        color: #444;
+        font-family: 'DM Mono', monospace;
       }
 
       .error {
@@ -244,6 +340,37 @@
         return `<div class="tag-list">${items.map(t => `<span class="tag ${className}">${t}</span>`).join('')}</div>`;
       }
 
+      // Send a select-node message to the plugin when a row is clicked
+      function selectNode(id) {
+        parent.postMessage({ pluginMessage: { type: 'select-node', id } }, '*');
+      }
+
+      // Build one collapsible violation group
+      function renderViolationGroup(title, icon, nodes) {
+        const count   = nodes.length;
+        const cntClass = count === 0 ? 'ok' : count >= 5 ? 'danger' : '';
+        const rows = count === 0
+          ? `<div class="empty-state">No violations found ✓</div>`
+          : nodes.map(n => `
+              <div class="vnode" onclick="selectNode('${n.id}')">
+                <span class="vnode-icon">${icon}</span>
+                <span class="vnode-name" title="${n.name}">${n.name}</span>
+                <span class="vnode-arrow">▶</span>
+              </div>`).join('');
+
+        return `
+          <div class="vgroup">
+            <div class="vgroup-header" onclick="this.closest('.vgroup').classList.toggle('open')">
+              <span class="vgroup-title">
+                ${title}
+                <span class="vgroup-count ${cntClass}">${count}</span>
+              </span>
+              <span class="vgroup-chevron">▼</span>
+            </div>
+            <div class="vgroup-body">${rows}</div>
+          </div>`;
+      }
+
       onmessage = (event) => {
         const msg = event.data.pluginMessage;
 
@@ -259,7 +386,6 @@
             componentProportion,
             autoLayoutProportion,
             numberedNameCount,
-            // Dan's metrics
             effectCount,
             groupCount,
             detachedInstanceCount,
@@ -267,9 +393,15 @@
             unusualSpacingValues,
             typefaceCount,
             typefaceNames,
-            // Zach's metrics
             accessibilityViolations,
             accessibilityDetails,
+            totalStyles,
+            // Violation node lists
+            accessibilityNodes,
+            unlinkedStyleNodes,
+            offGridNodes,
+            numberedNameNodes,
+            noAutoLayoutNodes,
           } = msg.data;
 
           const spacingTags = (unusualSpacingValues || []).map(v => v + 'px');
@@ -281,26 +413,22 @@
                 <span class="metric-label">Elements</span>
                 <span class="metric-value">${totalNodes}</span>
               </div>
-
               <div class="metric">
                 <span class="metric-label">Max depth</span>
                 <span class="metric-value ${severity(maxDepth, 8, 14)}">${maxDepth}</span>
               </div>
-
               <div class="metric">
                 <span class="metric-label">Components</span>
                 <span class="metric-value">${pct(componentProportion)}</span>
                 <div class="bar-track"><div class="bar-fill" id="bar-comp"></div></div>
                 <span class="metric-sub">of all frame-like nodes</span>
               </div>
-
               <div class="metric">
                 <span class="metric-label">Auto-layout</span>
                 <span class="metric-value">${pct(autoLayoutProportion)}</span>
                 <div class="bar-track"><div class="bar-fill" id="bar-auto"></div></div>
                 <span class="metric-sub">of all frame-like nodes</span>
               </div>
-
               <div class="metric wide">
                 <span class="metric-label">Numbered names</span>
                 <span class="metric-value ${severity(numberedNameCount, 5, 12)}">${numberedNameCount}</span>
@@ -308,49 +436,60 @@
               </div>
             </div>
 
-            <!-- ── Section 2: Dan's metrics ── -->
+            <!-- ── Section 2: Code complexity ── -->
             <div class="section-title">Code complexity</div>
             <div class="grid">
               <div class="metric">
-                <span class="metric-label">Effects <span class="author"></span></span>
+                <span class="metric-label">Effects</span>
                 <span class="metric-value ${severity(effectCount, 6, 16)}">${effectCount}</span>
                 <span class="metric-sub">shadows, blurs applied</span>
               </div>
-
               <div class="metric">
-                <span class="metric-label">Groups <span class="author"></span></span>
+                <span class="metric-label">Groups</span>
                 <span class="metric-value ${severity(groupCount, 1, 6)}">${groupCount}</span>
                 <span class="metric-sub">use frames instead</span>
               </div>
-
               <div class="metric">
-                <span class="metric-label">Detached <span class="author"></span></span>
-                <span class="metric-value ${severity(detachedInstanceCount, 3, 9)}">${detachedInstanceCount}</span>
-                <span class="metric-sub">detached instances (~)</span>
-              </div>
-
-              <div class="metric">
-                <span class="metric-label">Off-grid spacing <span class="author"></span></span>
+                <span class="metric-label">Off-grid spacing</span>
                 <span class="metric-value ${severity(unusualSpacingCount, 4, 12)}">${unusualSpacingCount}</span>
                 ${renderTags(spacingTags.slice(0, 6))}
               </div>
-
               <div class="metric wide">
-                <span class="metric-label">Typefaces <span class="author"></span></span>
+                <span class="metric-label">Typefaces</span>
                 <span class="metric-value ${severity(typefaceCount, 3, 5)}">${typefaceCount}</span>
                 ${renderTags(typefaceNames)}
               </div>
             </div>
 
-            <!-- ── Section 3: Zach's accessibility metrics ── -->
+            <!-- ── Section 3: Accessibility ── -->
             <div class="section-title">Accessibility</div>
             <div class="grid">
               <div class="metric wide">
-                <span class="metric-label">Violations <span class="author"></span></span>
+                <span class="metric-label">Violations</span>
                 <span class="metric-value ${severity(accessibilityViolations, 1, 5)}">${accessibilityViolations}</span>
                 <span class="metric-sub">contrast + touch target issues</span>
                 ${renderTags((accessibilityDetails || []).slice(0, 6), 'violation')}
               </div>
+            </div>
+
+            <!-- ── Section 4: Design tokens ── -->
+            <div class="section-title">Design tokens</div>
+            <div class="grid">
+              <div class="metric wide">
+                <span class="metric-label">Unlinked styles <span class="author">Aiden</span></span>
+                <span class="metric-value ${severity(totalStyles, 3, 8)}">${totalStyles}</span>
+                <span class="metric-sub">properties with a value but no reusable style</span>
+              </div>
+            </div>
+
+            <!-- ── Section 5: Violation node list ── -->
+            <div class="section-title">Violations — click to select in Figma</div>
+            <div class="vlist-section">
+              ${renderViolationGroup('Accessibility',       '⚠',  accessibilityNodes  || [])}
+              ${renderViolationGroup('Unlinked styles',     '🎨', unlinkedStyleNodes  || [])}
+              ${renderViolationGroup('Off-grid spacing',    '📐', offGridNodes        || [])}
+              ${renderViolationGroup('Numbered names',      '#',  numberedNameNodes   || [])}
+              ${renderViolationGroup('No auto-layout',      '⬜', noAutoLayoutNodes   || [])}
             </div>
           `;
 
