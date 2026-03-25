@@ -62,7 +62,6 @@
       button:hover  { opacity: 0.88; }
       button:active { transform: scale(0.98); }
 
-      /* ── section divider ── */
       .section-title {
         font-size: 10px;
         font-weight: 500;
@@ -72,7 +71,6 @@
         margin: 18px 0 10px;
       }
 
-      /* ── metric grid ── */
       .grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -80,7 +78,6 @@
         margin-top: 18px;
       }
 
-      /* second grid has no top margin — section-title provides it */
       .grid + .section-title + .grid {
         margin-top: 0;
       }
@@ -103,7 +100,6 @@
         transform: translateY(0);
       }
 
-      /* stagger across all metrics (up to 10) */
       .metric:nth-child(1)  { transition-delay: 0.00s; }
       .metric:nth-child(2)  { transition-delay: 0.06s; }
       .metric:nth-child(3)  { transition-delay: 0.12s; }
@@ -115,7 +111,6 @@
       .metric:nth-child(9)  { transition-delay: 0.48s; }
       .metric:nth-child(10) { transition-delay: 0.54s; }
 
-      /* wide card spans both columns */
       .metric.wide { grid-column: 1 / -1; }
 
       .metric-label {
@@ -129,7 +124,6 @@
         gap: 6px;
       }
 
-      /* "DAN" author badge */
       .author {
         font-size: 9px;
         font-weight: 600;
@@ -141,6 +135,11 @@
         padding: 1px 5px;
       }
 
+      .author {
+        color: #f538a0;
+        background: rgba(245, 56, 160, 0.12);
+      }
+
       .metric-value {
         font-family: 'DM Mono', monospace;
         font-size: 26px;
@@ -149,12 +148,10 @@
         line-height: 1;
       }
 
-      /* severity tinting on the value */
       .metric-value.warn   { color: #f5a623; }
       .metric-value.danger { color: #ff6b6b; }
       .metric-value.ok     { color: #38f542; }
 
-      /* proportion bar */
       .bar-track {
         height: 4px;
         background: #2a2a2a;
@@ -177,7 +174,6 @@
         font-family: 'DM Mono', monospace;
       }
 
-      /* tag list (typefaces / spacing values) */
       .tag-list {
         display: flex;
         flex-wrap: wrap;
@@ -195,7 +191,12 @@
         color: #999;
       }
 
-      /* error */
+      .tag.violation {
+        color: #ff6b6b;
+        border-color: #4a1a1a;
+        background: #1f0f0f;
+      }
+
       .error {
         margin-top: 14px;
         padding: 12px 14px;
@@ -232,16 +233,15 @@
         return (val * 100).toFixed(1) + '%';
       }
 
-      // Returns a CSS class name based on thresholds (low = ok, mid = warn, high = danger)
       function severity(val, warnAt, dangerAt) {
         if (val >= dangerAt) return 'danger';
         if (val >= warnAt)   return 'warn';
         return 'ok';
       }
 
-      function renderTags(items) {
+      function renderTags(items, className = '') {
         if (!items || items.length === 0) return '';
-        return `<div class="tag-list">${items.map(t => `<span class="tag">${t}</span>`).join('')}</div>`;
+        return `<div class="tag-list">${items.map(t => `<span class="tag ${className}">${t}</span>`).join('')}</div>`;
       }
 
       onmessage = (event) => {
@@ -267,9 +267,11 @@
             unusualSpacingValues,
             typefaceCount,
             typefaceNames,
+            // Zach's metrics
+            accessibilityViolations,
+            accessibilityDetails,
           } = msg.data;
 
-          // Format off-grid spacing values as "3px, 7px …"
           const spacingTags = (unusualSpacingValues || []).map(v => v + 'px');
 
           output.innerHTML = `
@@ -339,9 +341,19 @@
                 ${renderTags(typefaceNames)}
               </div>
             </div>
+
+            <!-- ── Section 3: Zach's accessibility metrics ── -->
+            <div class="section-title">Accessibility</div>
+            <div class="grid">
+              <div class="metric wide">
+                <span class="metric-label">Violations <span class="author"></span></span>
+                <span class="metric-value ${severity(accessibilityViolations, 1, 5)}">${accessibilityViolations}</span>
+                <span class="metric-sub">contrast + touch target issues</span>
+                ${renderTags((accessibilityDetails || []).slice(0, 6), 'violation')}
+              </div>
+            </div>
           `;
 
-          // Animate entrance + bars on next frame
           requestAnimationFrame(() => {
             document.querySelectorAll('.metric').forEach(el => el.classList.add('visible'));
             document.getElementById('bar-comp').style.width = pct(componentProportion);
