@@ -1,7 +1,7 @@
 figma.showUI(__html__, { width: 700, height: 700 });
 
 // ── Violation node reference (id + name) sent to the UI ──
-type NodeRef = { id: string; name: string };
+type NodeRef = { id: string; name: string; details?: string };
 
 type AnalysisResult = {
   // Existing
@@ -114,11 +114,11 @@ function analyzeNode(root: SceneNode): AnalysisResult {
   const noAutoLayoutNodes:   NodeRef[] = [];
 
   // Helper: push a NodeRef only if this node isn't already in the list
-  function addRef(list: NodeRef[], node: SceneNode) {
-    if (!list.find(r => r.id === node.id)) {
-      list.push({ id: node.id, name: node.name });
-    }
+  function addRef(list: NodeRef[], node: SceneNode, details?: string) {
+  if (!list.find(r => r.id === node.id)) {
+    list.push({ id: node.id, name: node.name, details });
   }
+}
 
   function traverse(node: SceneNode, depth: number) {
     totalNodes++;
@@ -177,15 +177,27 @@ function analyzeNode(root: SceneNode): AnalysisResult {
         f.itemSpacing,
       ];
 
-      let nodeHasOffGrid = false;
-      for (const val of spacingValues) {
-        if (val > 0 && val % SPACING_GRID !== 0) {
+      
+      const ALLOWED_SPACING = new Set([1, 2, 4, 6, 8, 10, 12, 16, 20, 24, 32, 40, 48, 64, 96, 128, 192, 256, 512]);
+      const SPACING_LABELS: [number, string][] = [
+        [f.paddingLeft,   "L"],
+        [f.paddingRight,  "R"],
+        [f.paddingTop,    "T"],
+        [f.paddingBottom, "B"],
+        [f.itemSpacing,   "Gap"],
+      ];
+
+      const badProps: string[] = [];
+      for (const [val, label] of SPACING_LABELS) {
+        if (val > 0 && !ALLOWED_SPACING.has(val)) {
           unusualSpacingCount++;
           unusualSpacingSet.add(val);
-          nodeHasOffGrid = true;
+          badProps.push(`${label}: ${val}`);
         }
       }
-      if (nodeHasOffGrid) addRef(offGridNodes, node);
+      if (badProps.length > 0) {
+        addRef(offGridNodes, node, badProps.join("  ·  "));
+      }
     }
 
     // ------- Dan: 5. Typefaces used -------
@@ -259,9 +271,18 @@ function analyzeNode(root: SceneNode): AnalysisResult {
     // Fill style
     if ("fills" in node && "fillStyleId" in node) {
       const fills = node.fills as ReadonlyArray<Paint>;
-      const hasActiveFill =
-        Array.isArray(fills) && fills.some((f) => f.visible !== false);
-      if (hasActiveFill) {
+
+      const hasActiveFill = Array.isArray(fills) && fills.some((f) => f.visible !== false);
+
+      const hasImageOrGradient = Array.isArray(fills) && fills.some((f) =>
+        f.type === "IMAGE" ||
+        f.type === "GRADIENT_LINEAR" ||
+        f.type === "GRADIENT_RADIAL" ||
+        f.type === "GRADIENT_ANGULAR" ||
+        f.type === "GRADIENT_DIAMOND"
+      );
+
+      if (hasActiveFill && !hasImageOrGradient) {
         const id = (node as GeometryMixin).fillStyleId;
         if (typeof id === "string" && id === "") {
           styleViolations++;

@@ -274,7 +274,6 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        flex: 1;
       }
 
       .vnode-arrow {
@@ -284,6 +283,23 @@
         transition: color 0.12s;
       }
       .vnode:hover .vnode-arrow { color: #666; }
+
+      .vnode-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      .vnode-details {
+        font-family: 'DM Mono', monospace;
+        font-size: 10px;
+        color: #f5a623;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
       .empty-state {
         padding: 10px 14px;
@@ -345,18 +361,22 @@
         parent.postMessage({ pluginMessage: { type: 'select-node', id } }, '*');
       }
 
+      // yer
       // Build one collapsible violation group
       function renderViolationGroup(title, icon, nodes) {
         const count   = nodes.length;
         const cntClass = count === 0 ? 'ok' : count >= 5 ? 'danger' : '';
         const rows = count === 0
-          ? `<div class="empty-state">No violations found ✓</div>`
-          : nodes.map(n => `
-              <div class="vnode" onclick="selectNode('${n.id}')">
-                <span class="vnode-icon">${icon}</span>
+      ? `<div class="empty-state">No violations found ✓</div>`
+        : nodes.map(n => `
+            <div class="vnode" onclick="selectNode('${n.id}')">
+              <span class="vnode-icon">${icon}</span>
+              <div class="vnode-text">
                 <span class="vnode-name" title="${n.name}">${n.name}</span>
-                <span class="vnode-arrow">▶</span>
-              </div>`).join('');
+                ${n.details ? `<span class="vnode-details">${n.details}</span>` : ''}
+              </div>
+              <span class="vnode-arrow">▶</span>
+            </div>`).join('');  
 
         return `
           <div class="vgroup">
@@ -477,7 +497,6 @@
             <div class="section-title">Design tokens</div>
             <div class="grid">
               <div class="metric wide">
-                <span class="metric-label">Unlinked styles <span class="author">Aiden</span></span>
                 <span class="metric-value ${severity(totalStyles, 3, 8)}">${totalStyles}</span>
                 <span class="metric-sub">properties with a value but no reusable style</span>
               </div>
