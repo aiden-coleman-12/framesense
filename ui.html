@@ -6,13 +6,27 @@
     <style>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-      body {
-        font-family: 'DM Sans', sans-serif;
-        background: #0f0f0f;
+     html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+   background: #0f0f0f;
         color: #f0ede8;
-        padding: 20px;
-        min-height: 100vh;
-      }
+}
+
+body {
+  font-family: Inter, sans-serif;
+    overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#app {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100%;
+  padding: 16px;
+}
 
       header {
         display: flex;
@@ -22,7 +36,7 @@
       }
 
       h1 {
-        font-size: 13px;
+        font-size: 16px;
         font-weight: 600;
         letter-spacing: 0.08em;
         text-transform: uppercase;
@@ -46,14 +60,14 @@
 
       button {
         width: 100%;
-        padding: 11px 14px;
+        padding: 14px 18px;
         font-family: 'DM Sans', sans-serif;
-        font-size: 13px;
+        font-size: 16px;
         font-weight: 600;
         letter-spacing: 0.03em;
         border-radius: 8px;
         border: none;
-        background: #38f542;
+        background: #38a9f5;
         color: #0f0f0f;
         cursor: pointer;
         transition: opacity 0.15s, transform 0.1s;
@@ -62,27 +76,20 @@
       button:hover  { opacity: 0.88; }
       button:active { transform: scale(0.98); }
 
-      /* ── section divider ── */
       .section-title {
-        font-size: 10px;
+        font-size: 13px;
         font-weight: 500;
         letter-spacing: 0.1em;
         text-transform: uppercase;
-        color: #444;
-        margin: 18px 0 10px;
+        color: #d1c3c3;
+        margin: 22px 0 12px;
       }
 
-      /* ── metric grid ── */
       .grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
         margin-top: 18px;
-      }
-
-      /* second grid has no top margin — section-title provides it */
-      .grid + .section-title + .grid {
-        margin-top: 0;
       }
 
       .metric {
@@ -103,7 +110,6 @@
         transform: translateY(0);
       }
 
-      /* stagger across all metrics (up to 10) */
       .metric:nth-child(1)  { transition-delay: 0.00s; }
       .metric:nth-child(2)  { transition-delay: 0.06s; }
       .metric:nth-child(3)  { transition-delay: 0.12s; }
@@ -115,11 +121,10 @@
       .metric:nth-child(9)  { transition-delay: 0.48s; }
       .metric:nth-child(10) { transition-delay: 0.54s; }
 
-      /* wide card spans both columns */
       .metric.wide { grid-column: 1 / -1; }
 
       .metric-label {
-        font-size: 10px;
+        font-size: 13px;
         font-weight: 500;
         letter-spacing: 0.1em;
         text-transform: uppercase;
@@ -129,32 +134,29 @@
         gap: 6px;
       }
 
-      /* "DAN" author badge */
       .author {
-        font-size: 9px;
+        font-size: 11px;
         font-weight: 600;
         letter-spacing: 0.06em;
         text-transform: uppercase;
         color: #6c38f5;
         background: rgba(108, 56, 245, 0.12);
         border-radius: 4px;
-        padding: 1px 5px;
+        padding: 2px 6px;
       }
 
       .metric-value {
         font-family: 'DM Mono', monospace;
-        font-size: 26px;
+        font-size: 36px;
         font-weight: 500;
         color: #f0ede8;
         line-height: 1;
       }
 
-      /* severity tinting on the value */
       .metric-value.warn   { color: #f5a623; }
       .metric-value.danger { color: #ff6b6b; }
       .metric-value.ok     { color: #38f542; }
 
-      /* proportion bar */
       .bar-track {
         height: 4px;
         background: #2a2a2a;
@@ -172,12 +174,11 @@
       }
 
       .metric-sub {
-        font-size: 10px;
-        color: #555;
+        font-size: 13px;
+        color: #fffdfd;
         font-family: 'DM Mono', monospace;
       }
 
-      /* tag list (typefaces / spacing values) */
       .tag-list {
         display: flex;
         flex-wrap: wrap;
@@ -187,15 +188,14 @@
 
       .tag {
         font-family: 'DM Mono', monospace;
-        font-size: 10px;
+        font-size: 13px;
         background: #222;
         border: 1px solid #333;
         border-radius: 5px;
-        padding: 2px 7px;
+        padding: 3px 9px;
         color: #999;
       }
 
-      /* error */
       .error {
         margin-top: 14px;
         padding: 12px 14px;
@@ -203,8 +203,55 @@
         background: #1f0f0f;
         border: 1px solid #4a1a1a;
         color: #ff6b6b;
-        font-size: 12px;
+        font-size: 14px;
         line-height: 1.5;
+      }
+
+      .mode-toggle {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 16px;
+      }
+
+      .mode-btn {
+        flex: 1;
+        padding: 9px 12px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 8px;
+        border: 1px solid #2a2a2a;
+        background: #1a1a1a;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.15s;
+        width: auto;
+      }
+
+      .mode-btn.active {
+        background: #6c38f5;
+        border-color: #6c38f5;
+        color: #fff;
+      }
+
+      select {
+        width: 100%;
+        padding: 11px 14px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        background: #1a1a1a;
+        color: #f0ede8;
+        border: 1px solid #2a2a2a;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        appearance: none;
+      }
+
+      .flow-banner {
+        font-size: 13px;
+        color: #555;
+        font-family: 'DM Mono', monospace;
+        margin: 14px 0 -4px;
       }
     </style>
   </head>
@@ -215,24 +262,56 @@
       <span class="dot"></span>
     </header>
 
-    <button id="analyze">Analyze selection</button>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-frame" onclick="setMode('frame')">Single frame</button>
+      <button class="mode-btn" id="btn-flow" onclick="setMode('flow')">Entire flow</button>
+    </div>
+
+    <div id="panel-frame">
+      <button id="analyze">Analyze selection</button>
+    </div>
+
+    <div id="panel-flow" style="display:none">
+      <select id="flow-select">
+        <option value="">— select a frame to see flows —</option>
+      </select>
+      <button id="analyze-flow">Analyze flow</button>
+    </div>
 
     <div id="output"></div>
 
     <script>
-      const output     = document.getElementById('output');
-      const analyzeBtn = document.getElementById('analyze');
+      const output = document.getElementById('output');
 
-      analyzeBtn.onclick = () => {
+      // ── Signal to the plugin that the UI is ready to receive messages ───────
+      window.onload = () => {
+        parent.postMessage({ pluginMessage: { type: 'ui-ready' } }, '*');
+      };
+
+      function setMode(mode) {
+        document.getElementById('panel-frame').style.display = mode === 'frame' ? 'block' : 'none';
+        document.getElementById('panel-flow').style.display  = mode === 'flow'  ? 'block' : 'none';
+        document.getElementById('btn-frame').classList.toggle('active', mode === 'frame');
+        document.getElementById('btn-flow').classList.toggle('active',  mode === 'flow');
+        output.innerHTML = '';
+      }
+
+      document.getElementById('analyze').onclick = () => {
         output.innerHTML = '';
         parent.postMessage({ pluginMessage: { type: 'analyze-selection' } }, '*');
+      };
+
+      document.getElementById('analyze-flow').onclick = () => {
+        const nodeId = document.getElementById('flow-select').value;
+        if (!nodeId) return;
+        output.innerHTML = '';
+        parent.postMessage({ pluginMessage: { type: 'analyze-flow', nodeId } }, '*');
       };
 
       function pct(val) {
         return (val * 100).toFixed(1) + '%';
       }
 
-      // Returns a CSS class name based on thresholds (low = ok, mid = warn, high = danger)
       function severity(val, warnAt, dangerAt) {
         if (val >= dangerAt) return 'danger';
         if (val >= warnAt)   return 'warn';
@@ -246,6 +325,30 @@
 
       onmessage = (event) => {
         const msg = event.data.pluginMessage;
+        if (!msg) return;
+
+        // ── Populate the flow dropdown ──────────────────────────────────────
+        if (msg.type === 'flows-list') {
+          const select = document.getElementById('flow-select');
+          select.innerHTML = ''; // always clear first
+          if (!msg.flows || msg.flows.length === 0) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = 'No flows found for this selection';
+            select.appendChild(opt);
+          } else {
+            const placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = '— select a flow —';
+            select.appendChild(placeholder);
+            msg.flows.forEach(f => {
+              const opt = document.createElement('option');
+              opt.value = f.nodeId;
+              opt.textContent = f.name;
+              select.appendChild(opt);
+            });
+          }
+        }
 
         if (msg.type === 'error') {
           output.innerHTML = `<div class="error">${msg.message}</div>`;
@@ -254,51 +357,39 @@
 
         if (msg.type === 'result') {
           const {
-            totalNodes,
-            maxDepth,
-            componentProportion,
-            autoLayoutProportion,
-            numberedNameCount,
-            // Dan's metrics
-            effectCount,
-            groupCount,
-            detachedInstanceCount,
-            unusualSpacingCount,
-            unusualSpacingValues,
-            typefaceCount,
-            typefaceNames,
+            totalNodes, maxDepth, componentProportion, autoLayoutProportion,
+            numberedNameCount, effectCount, groupCount, unusualSpacingCount,
+            unusualSpacingValues, typefaceCount, typefaceNames,
           } = msg.data;
 
-          // Format off-grid spacing values as "3px, 7px …"
           const spacingTags = (unusualSpacingValues || []).map(v => v + 'px');
+          const banner = msg.mode === 'flow'
+            ? `<p class="flow-banner">${msg.frameCount} frames analyzed across flow</p>`
+            : '';
 
           output.innerHTML = `
-            <!-- ── Section 1: Structure ── -->
+            ${banner}
             <div class="grid">
               <div class="metric">
                 <span class="metric-label">Elements</span>
                 <span class="metric-value">${totalNodes}</span>
               </div>
-
               <div class="metric">
                 <span class="metric-label">Max depth</span>
                 <span class="metric-value ${severity(maxDepth, 8, 14)}">${maxDepth}</span>
               </div>
-
               <div class="metric">
                 <span class="metric-label">Components</span>
                 <span class="metric-value">${pct(componentProportion)}</span>
                 <div class="bar-track"><div class="bar-fill" id="bar-comp"></div></div>
                 <span class="metric-sub">of all frame-like nodes</span>
               </div>
-
               <div class="metric">
                 <span class="metric-label">Auto-layout</span>
                 <span class="metric-value">${pct(autoLayoutProportion)}</span>
                 <div class="bar-track"><div class="bar-fill" id="bar-auto"></div></div>
                 <span class="metric-sub">of all frame-like nodes</span>
               </div>
-
               <div class="metric wide">
                 <span class="metric-label">Numbered names</span>
                 <span class="metric-value ${severity(numberedNameCount, 5, 12)}">${numberedNameCount}</span>
@@ -306,42 +397,31 @@
               </div>
             </div>
 
-            <!-- ── Section 2: Dan's metrics ── -->
             <div class="section-title">Code complexity</div>
             <div class="grid">
               <div class="metric">
-                <span class="metric-label">Effects <span class="author"></span></span>
+                <span class="metric-label">Effects <span class="author">Dan</span></span>
                 <span class="metric-value ${severity(effectCount, 6, 16)}">${effectCount}</span>
                 <span class="metric-sub">shadows, blurs applied</span>
               </div>
-
               <div class="metric">
-                <span class="metric-label">Groups <span class="author"></span></span>
+                <span class="metric-label">Groups <span class="author">Dan</span></span>
                 <span class="metric-value ${severity(groupCount, 1, 6)}">${groupCount}</span>
                 <span class="metric-sub">use frames instead</span>
               </div>
-
               <div class="metric">
-                <span class="metric-label">Detached <span class="author"></span></span>
-                <span class="metric-value ${severity(detachedInstanceCount, 3, 9)}">${detachedInstanceCount}</span>
-                <span class="metric-sub">detached instances (~)</span>
-              </div>
-
-              <div class="metric">
-                <span class="metric-label">Off-grid spacing <span class="author"></span></span>
+                <span class="metric-label">Off-grid spacing <span class="author">Dan</span></span>
                 <span class="metric-value ${severity(unusualSpacingCount, 4, 12)}">${unusualSpacingCount}</span>
                 ${renderTags(spacingTags.slice(0, 6))}
               </div>
-
-              <div class="metric wide">
-                <span class="metric-label">Typefaces <span class="author"></span></span>
+              <div class="metric">
+                <span class="metric-label">Typefaces <span class="author">Dan</span></span>
                 <span class="metric-value ${severity(typefaceCount, 3, 5)}">${typefaceCount}</span>
                 ${renderTags(typefaceNames)}
               </div>
             </div>
           `;
 
-          // Animate entrance + bars on next frame
           requestAnimationFrame(() => {
             document.querySelectorAll('.metric').forEach(el => el.classList.add('visible'));
             document.getElementById('bar-comp').style.width = pct(componentProportion);
