@@ -43,7 +43,36 @@
         50%       { opacity: 0.3; }
       }
 
-      button#analyze {
+      /* ── Mode toggle ── */
+      .mode-toggle {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 16px;
+      }
+
+      .mode-btn {
+        flex: 1;
+        padding: 9px 12px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 8px;
+        border: 1px solid #2a2a2a;
+        background: #1a1a1a;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.15s;
+        width: auto;
+      }
+
+      .mode-btn.active {
+        background: #6c38f5;
+        border-color: #6c38f5;
+        color: #fff;
+      }
+
+      /* ── Primary action buttons ── */
+      button.primary {
         width: 100%;
         padding: 11px 14px;
         font-family: 'DM Sans', sans-serif;
@@ -57,10 +86,31 @@
         cursor: pointer;
         transition: opacity 0.15s, transform 0.1s;
       }
-      button#analyze:hover  { opacity: 0.88; }
-      button#analyze:active { transform: scale(0.98); }
+      button.primary:hover  { opacity: 0.88; }
+      button.primary:active { transform: scale(0.98); }
 
-      /* ── section titles ── */
+      /* ── Flow dropdown ── */
+      select {
+        width: 100%;
+        padding: 11px 14px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        background: #1a1a1a;
+        color: #f0ede8;
+        border: 1px solid #2a2a2a;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        appearance: none;
+      }
+
+      .flow-banner {
+        font-size: 13px;
+        color: #555;
+        font-family: 'DM Mono', monospace;
+        margin: 14px 0 -4px;
+      }
+
+      /* ── Section titles ── */
       .section-title {
         font-size: 10px;
         font-weight: 500;
@@ -70,7 +120,7 @@
         margin: 18px 0 10px;
       }
 
-      /* ── metric grid ── */
+      /* ── Metric grid ── */
       .grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -114,17 +164,6 @@
         display: flex;
         align-items: center;
         gap: 6px;
-      }
-
-      .author {
-        font-size: 9px;
-        font-weight: 600;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: #f538a0;
-        background: rgba(245, 56, 160, 0.12);
-        border-radius: 4px;
-        padding: 1px 5px;
       }
 
       .metric-value {
@@ -180,13 +219,12 @@
         background: #1f0f0f;
       }
 
-      /* ── violation list panel ── */
+      /* ── Violation list panel ── */
       .vlist-section {
         margin-top: 24px;
         padding-bottom: 8px;
       }
 
-      /* collapsible group */
       .vgroup {
         margin-bottom: 8px;
         border: 1px solid #222;
@@ -248,7 +286,6 @@
       }
       .vgroup.open .vgroup-body { display: flex; }
 
-      /* individual node row */
       .vnode {
         display: flex;
         align-items: center;
@@ -258,7 +295,7 @@
         cursor: pointer;
         transition: background 0.12s;
       }
-      .vnode:hover { background: #1a1a1a; }
+      .vnode:hover  { background: #1a1a1a; }
       .vnode:active { background: #222; }
 
       .vnode-icon {
@@ -328,19 +365,58 @@
       <span class="dot"></span>
     </header>
 
-    <button id="analyze">Analyze selection</button>
+    <!-- ── Mode toggle ── -->
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-frame" onclick="setMode('frame')">Single frame</button>
+      <button class="mode-btn"        id="btn-flow"  onclick="setMode('flow')">Entire flow</button>
+    </div>
+
+    <!-- ── Single-frame panel ── -->
+    <div id="panel-frame">
+      <button class="primary" id="analyze">Analyze selection</button>
+    </div>
+
+    <!-- ── Flow panel ── -->
+    <div id="panel-flow" style="display:none">
+      <select id="flow-select">
+        <option value="">— select a frame to see flows —</option>
+      </select>
+      <button class="primary" id="analyze-flow">Analyze flow</button>
+    </div>
 
     <div id="output"></div>
 
     <script>
-      const output     = document.getElementById('output');
-      const analyzeBtn = document.getElementById('analyze');
+      const output = document.getElementById('output');
 
-      analyzeBtn.onclick = () => {
+      // Signal the plugin that the UI is mounted so it can send the initial flows list
+      window.onload = () => {
+        parent.postMessage({ pluginMessage: { type: 'ui-ready' } }, '*');
+      };
+
+      // ── Mode switching ───────────────────────────────────────────────────────
+      function setMode(mode) {
+        document.getElementById('panel-frame').style.display = mode === 'frame' ? 'block' : 'none';
+        document.getElementById('panel-flow').style.display  = mode === 'flow'  ? 'block' : 'none';
+        document.getElementById('btn-frame').classList.toggle('active', mode === 'frame');
+        document.getElementById('btn-flow').classList.toggle('active',  mode === 'flow');
+        output.innerHTML = '';
+      }
+
+      // ── Button handlers ──────────────────────────────────────────────────────
+      document.getElementById('analyze').onclick = () => {
         output.innerHTML = '';
         parent.postMessage({ pluginMessage: { type: 'analyze-selection' } }, '*');
       };
 
+      document.getElementById('analyze-flow').onclick = () => {
+        const nodeId = document.getElementById('flow-select').value;
+        if (!nodeId) return;
+        output.innerHTML = '';
+        parent.postMessage({ pluginMessage: { type: 'analyze-flow', nodeId } }, '*');
+      };
+
+      // ── Utilities ────────────────────────────────────────────────────────────
       function pct(val) {
         return (val * 100).toFixed(1) + '%';
       }
@@ -356,27 +432,24 @@
         return `<div class="tag-list">${items.map(t => `<span class="tag ${className}">${t}</span>`).join('')}</div>`;
       }
 
-      // Send a select-node message to the plugin when a row is clicked
       function selectNode(id) {
         parent.postMessage({ pluginMessage: { type: 'select-node', id } }, '*');
       }
 
-      // yer
-      // Build one collapsible violation group
       function renderViolationGroup(title, icon, nodes) {
-        const count   = nodes.length;
+        const count    = nodes.length;
         const cntClass = count === 0 ? 'ok' : count >= 5 ? 'danger' : '';
         const rows = count === 0
-      ? `<div class="empty-state">No violations found ✓</div>`
-        : nodes.map(n => `
-            <div class="vnode" onclick="selectNode('${n.id}')">
-              <span class="vnode-icon">${icon}</span>
-              <div class="vnode-text">
-                <span class="vnode-name" title="${n.name}">${n.name}</span>
-                ${n.details ? `<span class="vnode-details">${n.details}</span>` : ''}
-              </div>
-              <span class="vnode-arrow">▶</span>
-            </div>`).join('');  
+          ? `<div class="empty-state">No violations found ✓</div>`
+          : nodes.map(n => `
+              <div class="vnode" onclick="selectNode('${n.id}')">
+                <span class="vnode-icon">${icon}</span>
+                <div class="vnode-text">
+                  <span class="vnode-name" title="${n.name}">${n.name}</span>
+                  ${n.details ? `<span class="vnode-details">${n.details}</span>` : ''}
+                </div>
+                <span class="vnode-arrow">▶</span>
+              </div>`).join('');
 
         return `
           <div class="vgroup">
@@ -391,8 +464,34 @@
           </div>`;
       }
 
+      // ── Message handler ──────────────────────────────────────────────────────
       onmessage = (event) => {
         const msg = event.data.pluginMessage;
+        if (!msg) return;
+
+        // ── Populate flow dropdown whenever selection changes ──
+        if (msg.type === 'flows-list') {
+          const select = document.getElementById('flow-select');
+          select.innerHTML = '';
+          if (!msg.flows || msg.flows.length === 0) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = 'No flows found for this selection';
+            select.appendChild(opt);
+          } else {
+            const placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = '— select a flow —';
+            select.appendChild(placeholder);
+            msg.flows.forEach(f => {
+              const opt = document.createElement('option');
+              opt.value = f.nodeId;
+              opt.textContent = f.name;
+              select.appendChild(opt);
+            });
+          }
+          return;
+        }
 
         if (msg.type === 'error') {
           output.innerHTML = `<div class="error">${msg.message}</div>`;
@@ -408,7 +507,6 @@
             numberedNameCount,
             effectCount,
             groupCount,
-            detachedInstanceCount,
             unusualSpacingCount,
             unusualSpacingValues,
             typefaceCount,
@@ -416,7 +514,6 @@
             accessibilityViolations,
             accessibilityDetails,
             totalStyles,
-            // Violation node lists
             accessibilityNodes,
             unlinkedStyleNodes,
             offGridNodes,
@@ -425,9 +522,14 @@
           } = msg.data;
 
           const spacingTags = (unusualSpacingValues || []).map(v => v + 'px');
+          const banner = msg.mode === 'flow'
+            ? `<p class="flow-banner">${msg.frameCount} frames analyzed across flow</p>`
+            : '';
 
           output.innerHTML = `
-            <!-- ── Section 1: Structure ── -->
+            ${banner}
+
+            <!-- ── Structure ── -->
             <div class="grid">
               <div class="metric">
                 <span class="metric-label">Elements</span>
@@ -461,7 +563,7 @@
               </div>
             </div>
 
-            <!-- ── Section 2: Code complexity ── -->
+            <!-- ── Code complexity ── -->
             <div class="section-title">Code complexity</div>
             <div class="grid">
               <div class="metric">
@@ -479,10 +581,9 @@
                 <span class="metric-value ${severity(unusualSpacingCount, 4, 12)}">${unusualSpacingCount}</span>
                 ${renderTags(spacingTags.slice(0, 6))}
               </div>
-            
             </div>
 
-            <!-- ── Section 3: Accessibility ── -->
+            <!-- ── Accessibility ── -->
             <div class="section-title">Accessibility</div>
             <div class="grid">
               <div class="metric wide">
@@ -493,7 +594,7 @@
               </div>
             </div>
 
-            <!-- ── Section 4: Design tokens ── -->
+            <!-- ── Design tokens ── -->
             <div class="section-title">Design tokens</div>
             <div class="grid">
               <div class="metric wide">
@@ -502,14 +603,14 @@
               </div>
             </div>
 
-            <!-- ── Section 5: Violation node list ── -->
+            <!-- ── Violation node list ── -->
             <div class="section-title">Violations — click to select in Figma</div>
             <div class="vlist-section">
-              ${renderViolationGroup('Accessibility',       '⚠',  accessibilityNodes  || [])}
-              ${renderViolationGroup('Unlinked styles',     '🎨', unlinkedStyleNodes  || [])}
-              ${renderViolationGroup('Off-grid spacing',    '📐', offGridNodes        || [])}
-              ${renderViolationGroup('Numbered names',      '#',  numberedNameNodes   || [])}
-              ${renderViolationGroup('No auto-layout',      '⬜', noAutoLayoutNodes   || [])}
+              ${renderViolationGroup('Accessibility',    '⚠',  accessibilityNodes  || [])}
+              ${renderViolationGroup('Unlinked styles',  '🎨', unlinkedStyleNodes  || [])}
+              ${renderViolationGroup('Off-grid spacing', '📐', offGridNodes        || [])}
+              ${renderViolationGroup('Numbered names',   '#',  numberedNameNodes   || [])}
+              ${renderViolationGroup('No auto-layout',   '⬜', noAutoLayoutNodes   || [])}
             </div>
           `;
 
