@@ -8,8 +8,8 @@
 
       body {
         font-family: 'DM Sans', sans-serif;
-        background: #0f0f0f;
-        color: #f0ede8;
+        background: #f5f4f2;
+        color: #1a1a1a;
         padding: 20px;
         min-height: 100vh;
       }
@@ -26,7 +26,7 @@
         font-weight: 600;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: #f0ede8;
+        color: #1a1a1a;
       }
 
       .dot {
@@ -45,123 +45,183 @@
 
       .mode-toggle {
         display: flex;
-        gap: 6px;
-        margin-bottom: 16px;
+        gap: 0;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #dddbd8;
       }
 
       .mode-btn {
         flex: 1;
-        padding: 9px 12px;
+        padding: 9px 12px 10px;
         font-family: 'DM Sans', sans-serif;
         font-size: 13px;
         font-weight: 600;
-        border-radius: 8px;
-        border: 1px solid #2a2a2a;
-        background: #1a1a1a;
-        color: #666;
+        border: none;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        background: transparent;
+        color: #bbb;
         cursor: pointer;
-        transition: all 0.15s;
+        transition: color 0.15s, border-color 0.15s;
         width: auto;
+        border-radius: 0;
       }
 
+      .mode-btn:hover { color: #666; }
+
       .mode-btn.active {
-        background: #6c38f5;
-        border-color: #6c38f5;
-        color: #fff;
+        color: #1a1a1a;
+        border-bottom-color: #1a1a1a;
       }
 
       button.primary {
         width: 100%;
-        padding: 11px 14px;
+        padding: 12px 14px;
         font-family: 'DM Sans', sans-serif;
         font-size: 13px;
         font-weight: 600;
         letter-spacing: 0.03em;
         border-radius: 8px;
         border: none;
-        background: #38f542;
-        color: #0f0f0f;
+        background: linear-gradient(135deg, #B93CFC 0%, #EA2CC0 55%, #F42436 100%);
+        background-size: 200% 200%;
+        color: #fff;
         cursor: pointer;
-        transition: opacity 0.15s, transform 0.1s;
+        transition: transform 0.1s, box-shadow 0.2s, background-position 0.4s;
+        box-shadow: 0 2px 12px rgba(124, 58, 237, 0.3);
+        position: relative;
+        overflow: hidden;
       }
-      button.primary:hover  { opacity: 0.88; }
-      button.primary:active { transform: scale(0.98); }
+      button.primary::after {
+        content: '→';
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%) translateX(0px);
+        transition: transform 0.2s;
+        font-size: 14px;
+      }
+      button.primary:hover {
+        background-position: 100% 0;
+        box-shadow: 0 4px 20px rgba(124, 58, 237, 0.42);
+        transform: translateY(-1px);
+      }
+      button.primary:hover::after { transform: translateY(-50%) translateX(3px); }
+      button.primary:active { transform: scale(0.98) translateY(0); }
 
       select {
         width: 100%;
         padding: 11px 14px;
         font-family: 'DM Sans', sans-serif;
         font-size: 14px;
-        background: #1a1a1a;
-        color: #f0ede8;
-        border: 1px solid #2a2a2a;
+        background: #eceae7;
+        color: #1a1a1a;
+        border: 1px solid #dddbd8;
         border-radius: 8px;
         margin-bottom: 10px;
         appearance: none;
       }
 
       .flow-banner {
-        font-size: 13px;
-        color: #555;
+        font-size: 11px;
+        color: #888;
         font-family: 'DM Mono', monospace;
-        margin: 14px 0 -4px;
+        margin-bottom: 18px;
       }
 
-      /* ── Section headers ── */
-      .section-block {
-        margin-top: 24px;
-        border: 1px solid #222;
-        border-radius: 12px;
+      /* ── Quick-glance bar (build complexity) ── */
+      .quickglance {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 1px;
+        background: #dddbd8;
+        border-radius: 10px;
         overflow: hidden;
+        margin-bottom: 28px;
+        opacity: 0;
+        transform: translateY(4px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+      }
+      .quickglance.visible { opacity: 1; transform: translateY(0); }
+
+      .qg-item {
+        background: #eceae7;
+        padding: 14px 12px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
       }
 
-      .section-header {
-        padding: 12px 14px 10px;
-        background: #141414;
-        border-bottom: 1px solid #222;
-      }
-
-      .section-role {
+      .qg-label {
         font-size: 9px;
         font-weight: 600;
         letter-spacing: 0.12em;
         text-transform: uppercase;
-        color: #6c38f5;
-        margin-bottom: 2px;
+        color: #888;
       }
 
-      .section-role.engineer { color: #38a9f5; }
-      .section-role.shared   { color: #888; }
+      .qg-value {
+        font-family: 'DM Mono', monospace;
+        font-size: 22px;
+        font-weight: 500;
+        color: #1a1a1a;
+        line-height: 1;
+      }
+
+      .qg-sub {
+        font-size: 9px;
+        color: #999;
+        font-family: 'DM Mono', monospace;
+        margin-top: 1px;
+      }
+
+      /* ── Section headings (flat, no box) ── */
+      .section-label {
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #6c38f5;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .section-label.engineer { color: #2277cc; }
+      .section-label.shared   { color: #888; }
+      .section-label::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #dddbd8;
+      }
 
       .section-title {
-        font-size: 11px;
+        font-size: 13px;
         font-weight: 600;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: #ffffff;
+        color: #1a1a1a;
+        margin-bottom: 2px;
       }
 
       .section-desc {
         font-size: 11px;
-        color: #555;
-        font-family: 'DM Sans', sans-serif;
-        margin-top: 2px;
+        color: #888;
+        margin-bottom: 14px;
       }
 
-      .section-inner {
-        padding: 12px;
+      .section-block {
+        margin-bottom: 28px;
       }
 
       /* ── Metric grid ── */
       .grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 10px;
+        gap: 8px;
       }
 
       .metric {
-        background: #1a1a1a;
-        border: 1px solid #2a2a2a;
+        background: #eceae7;
         border-radius: 10px;
         padding: 14px 14px 12px;
         display: flex;
@@ -173,16 +233,12 @@
       }
       .metric.visible { opacity: 1; transform: translateY(0); }
 
-      .metric:nth-child(1)  { transition-delay: 0.00s; }
-      .metric:nth-child(2)  { transition-delay: 0.06s; }
-      .metric:nth-child(3)  { transition-delay: 0.12s; }
-      .metric:nth-child(4)  { transition-delay: 0.18s; }
-      .metric:nth-child(5)  { transition-delay: 0.24s; }
+      .metric:nth-child(1)  { transition-delay: 0.05s; }
+      .metric:nth-child(2)  { transition-delay: 0.10s; }
+      .metric:nth-child(3)  { transition-delay: 0.15s; }
+      .metric:nth-child(4)  { transition-delay: 0.20s; }
+      .metric:nth-child(5)  { transition-delay: 0.25s; }
       .metric:nth-child(6)  { transition-delay: 0.30s; }
-      .metric:nth-child(7)  { transition-delay: 0.36s; }
-      .metric:nth-child(8)  { transition-delay: 0.42s; }
-      .metric:nth-child(9)  { transition-delay: 0.48s; }
-      .metric:nth-child(10) { transition-delay: 0.54s; }
 
       .metric.wide { grid-column: 1 / -1; }
 
@@ -191,26 +247,23 @@
         font-weight: 500;
         letter-spacing: 0.1em;
         text-transform: uppercase;
-        color: #ffffff;
-        display: flex;
-        align-items: center;
-        gap: 6px;
+        color: #888;
       }
 
       .metric-value {
         font-family: 'DM Mono', monospace;
         font-size: 26px;
         font-weight: 500;
-        color: #f0ede8;
+        color: #1a1a1a;
         line-height: 1;
       }
-      .metric-value.warn   { color: #f5a623; }
-      .metric-value.danger { color: #ff6b6b; }
-      .metric-value.ok     { color: #38f542; }
+      .metric-value.warn   { color: #c47d00; }
+      .metric-value.danger { color: #d63b3b; }
+      .metric-value.ok     { color: #1a9e2e; }
 
       .bar-track {
-        height: 4px;
-        background: #2a2a2a;
+        height: 3px;
+        background: #dddbd8;
         border-radius: 99px;
         overflow: hidden;
         margin-top: 4px;
@@ -218,14 +271,14 @@
       .bar-fill {
         height: 100%;
         border-radius: 99px;
-        background: #c8f560;
+        background: #6c38f5;
         width: 0%;
         transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
       .metric-sub {
         font-size: 10px;
-        color: #ffffff;
+        color: #999;
         font-family: 'DM Mono', monospace;
       }
 
@@ -235,11 +288,11 @@
         line-height: 1.5;
         padding-top: 7px;
         margin-top: 2px;
-        border-top: 1px solid #2a2a2a;
+        border-top: 1px solid #dddbd8;
       }
-      .feedback.ok     { color: #38f542; }
-      .feedback.warn   { color: #f5a623; }
-      .feedback.danger { color: #ff6b6b; }
+      .feedback.ok     { color: #1a9e2e; }
+      .feedback.warn   { color: #c47d00; }
+      .feedback.danger { color: #d63b3b; }
 
       .tag-list {
         display: flex;
@@ -250,28 +303,25 @@
       .tag {
         font-family: 'DM Mono', monospace;
         font-size: 10px;
-        background: #222;
-        border: 1px solid #333;
-        border-radius: 5px;
+        background: #e0deda;
+        border-radius: 4px;
         padding: 2px 7px;
-        color: #ffffff;
+        color: #888;
       }
       .tag.violation {
-        color: #ff6b6b;
-        border-color: #4a1a1a;
-        background: #1f0f0f;
+        color: #d63b3b;
+        background: #fce8e8;
       }
 
       /* ── Violation groups ── */
       .vlist-section {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 2px;
       }
 
       .vgroup {
-        border: 1px solid #222;
-        border-radius: 10px;
+        border-radius: 8px;
         overflow: hidden;
       }
 
@@ -279,20 +329,24 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 10px 14px;
-        background: #161616;
+        padding: 10px 12px;
+        background: #eceae7;
         cursor: pointer;
         user-select: none;
         transition: background 0.15s;
+        border-radius: 8px;
       }
-      .vgroup-header:hover { background: #1e1e1e; }
+      .vgroup.open .vgroup-header {
+        border-radius: 8px 8px 0 0;
+      }
+      .vgroup-header:hover { background: #e5e3e0; }
 
       .vgroup-title {
         font-size: 11px;
         font-weight: 600;
         letter-spacing: 0.06em;
         text-transform: uppercase;
-        color: #ffffff;
+        color: #888;
         display: flex;
         align-items: center;
         gap: 8px;
@@ -302,23 +356,14 @@
         font-family: 'DM Mono', monospace;
         font-size: 11px;
         font-weight: 500;
-        color: #f5a623;
-        background: rgba(245, 166, 35, 0.1);
-        border-radius: 4px;
-        padding: 1px 6px;
+        color: #c47d00;
       }
-      .vgroup-count.danger {
-        color: #ff6b6b;
-        background: rgba(255, 107, 107, 0.1);
-      }
-      .vgroup-count.ok {
-        color: #38f542;
-        background: rgba(56, 245, 66, 0.08);
-      }
+      .vgroup-count.danger { color: #d63b3b; }
+      .vgroup-count.ok     { color: #1a9e2e; }
 
       .vgroup-chevron {
-        font-size: 10px;
-        color: #444;
+        font-size: 9px;
+        color: #999;
         transition: transform 0.2s;
       }
       .vgroup.open .vgroup-chevron { transform: rotate(180deg); }
@@ -326,6 +371,8 @@
       .vgroup-body {
         display: none;
         flex-direction: column;
+        background: #f0ede9;
+        border-radius: 0 0 8px 8px;
       }
       .vgroup.open .vgroup-body { display: flex; }
 
@@ -333,32 +380,32 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 8px 14px;
-        border-top: 1px solid #1e1e1e;
+        padding: 8px 12px;
+        border-top: 1px solid #e5e3e0;
         cursor: pointer;
         transition: background 0.12s;
       }
-      .vnode:hover  { background: #1a1a1a; }
-      .vnode:active { background: #222; }
+      .vnode:hover  { background: #e8e6e2; }
+      .vnode:active { background: #e0deda; }
 
-      .vnode-icon { font-size: 11px; flex-shrink: 0; opacity: 0.5; }
+      .vnode-icon { font-size: 11px; flex-shrink: 0; opacity: 0.4; }
 
       .vnode-name {
         font-family: 'DM Mono', monospace;
         font-size: 11px;
-        color: #ffffff;
+        color: #333;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
 
       .vnode-arrow {
-        font-size: 10px;
-        color: #333;
+        font-size: 9px;
+        color: #aaa;
         flex-shrink: 0;
         transition: color 0.12s;
       }
-      .vnode:hover .vnode-arrow { color: #666; }
+      .vnode:hover .vnode-arrow { color: #888; }
 
       .vnode-text {
         display: flex;
@@ -371,17 +418,17 @@
       .vnode-details {
         font-family: 'DM Mono', monospace;
         font-size: 10px;
-        color: #f5a623;
+        color: #888;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
 
       .empty-state {
-        padding: 10px 14px;
-        border-top: 1px solid #1e1e1e;
+        padding: 10px 12px;
+        border-top: 1px solid #e5e3e0;
         font-size: 11px;
-        color: #ffffff;
+        color: #1a9e2e;
         font-family: 'DM Mono', monospace;
       }
 
@@ -389,11 +436,18 @@
         margin-top: 14px;
         padding: 12px 14px;
         border-radius: 10px;
-        background: #1f0f0f;
-        border: 1px solid #4a1a1a;
-        color: #ff6b6b;
+        background: #fce8e8;
+        border: 1px solid #f5c0c0;
+        color: #d63b3b;
         font-size: 12px;
         line-height: 1.5;
+      }
+
+      /* thin divider */
+      .divider {
+        height: 1px;
+        background: #dddbd8;
+        margin: 24px 0;
       }
     </style>
   </head>
@@ -420,7 +474,7 @@
       <button class="primary" id="analyze-flow">Analyze flow</button>
     </div>
 
-    <div id="output"></div>
+    <div id="output" style="margin-top: 20px;"></div>
 
     <script>
       const output = document.getElementById('output');
@@ -451,9 +505,20 @@
 
       function pct(val) { return (val * 100).toFixed(1) + '%'; }
 
-      function severity(val, warnAt, dangerAt) {
-        if (val >= dangerAt) return 'danger';
-        if (val >= warnAt)   return 'warn';
+      // Scale thresholds upward for large frames so isolated counts
+      // aren't penalised on dense, complex screens.
+      // ≤200 nodes → 1×  |  ≤500 → 1.3×  |  ≤1000 → 1.7×  |  >1000 → 2.2×
+      function nodeScaleFactor(n) {
+        if (n <= 200)  return 1.0;
+        if (n <= 500)  return 1.3;
+        if (n <= 1000) return 1.7;
+        return 2.2;
+      }
+
+      function severity(val, warnAt, dangerAt, nodeCount = 0) {
+        const scale = nodeScaleFactor(nodeCount);
+        if (val >= dangerAt * scale) return 'danger';
+        if (val >= warnAt   * scale) return 'warn';
         return 'ok';
       }
 
@@ -470,7 +535,7 @@
         const count    = nodes.length;
         const cntClass = count === 0 ? 'ok' : count >= 5 ? 'danger' : '';
         const rows = count === 0
-          ? `<div class="empty-state">No violations found ✓</div>`
+          ? `<div class="empty-state">No violations ✓</div>`
           : nodes.map(n => `
               <div class="vnode" onclick="selectNode('${n.id}')">
                 <span class="vnode-icon">${icon}</span>
@@ -610,132 +675,113 @@
           output.innerHTML = `
             ${banner}
 
+            <!-- ══ QUICK-GLANCE: Build complexity ══ -->
+            <div class="quickglance" id="quickglance">
+              <div class="qg-item">
+                <span class="qg-label">Elements</span>
+                <span class="qg-value">${totalNodes}</span>
+                <span class="qg-sub">total nodes</span>
+              </div>
+              <div class="qg-item">
+                <span class="qg-label">Max depth</span>
+                <span class="qg-value">${maxDepth}</span>
+                <span class="qg-sub">nesting levels</span>
+              </div>
+              <div class="qg-item">
+                <span class="qg-label">Effects</span>
+                <span class="qg-value">${effectCount}</span>
+                <span class="qg-sub">shadows / blurs</span>
+              </div>
+              <div class="qg-item">
+                <span class="qg-label">Typefaces</span>
+                <span class="qg-value">${typefaceCount}</span>
+                <span class="qg-sub">${(typefaceNames || []).slice(0,2).join(', ')|| 'n/a'}</span>
+              </div>
+            </div>
+
             <!-- ══ SECTION 1: FOR DESIGNERS ══ -->
             <div class="section-block">
-              <div class="section-header">
-                <div class="section-role">For designers</div>
-                <div class="section-title">Fix before handoff</div>
-                <div class="section-desc">Issues you can resolve directly in Figma right now</div>
-              </div>
-              <div class="section-inner">
-                <div class="grid">
-                  <div class="metric">
-                    <span class="metric-label">Numbered names</span>
-                    <span class="metric-value ${severity(numberedNameCount, 5, 12)}">${numberedNameCount}</span>
-                    <span class="metric-sub">layers with auto-generated names</span>
-                    ${fb(feedbackNumberedNames(numberedNameCount))}
-                  </div>
-                  <div class="metric">
-                    <span class="metric-label">Groups</span>
-                    <span class="metric-value ${severity(groupCount, 1, 6)}">${groupCount}</span>
-                    <span class="metric-sub">replace with frames</span>
-                    ${fb(feedbackGroups(groupCount))}
-                  </div>
-                  <div class="metric">
-                    <span class="metric-label">Off-grid spacing</span>
-                    <span class="metric-value ${severity(unusualSpacingCount, 4, 12)}">${unusualSpacingCount}</span>
-                    ${renderTags(spacingTags.slice(0, 6))}
-                    ${fb(feedbackSpacing(unusualSpacingCount))}
-                  </div>
-                  <div class="metric">
-                    <span class="metric-label">Unlinked styles</span>
-                    <span class="metric-value ${severity(totalStyles, 3, 8)}">${totalStyles}</span>
-                    <span class="metric-sub">no reusable style attached</span>
-                    ${fb(feedbackStyles(totalStyles))}
-                  </div>
-                  <div class="metric wide">
-                    <span class="metric-label">Accessibility violations</span>
-                    <span class="metric-value ${severity(accessibilityViolations, 1, 5)}">${accessibilityViolations}</span>
-                    <span class="metric-sub">contrast + touch target issues</span>
-                    ${renderTags((accessibilityDetails || []).slice(0, 6), 'violation')}
-                    ${fb(feedbackAccessibility(accessibilityViolations))}
-                  </div>
+              <div class="section-label">For designers</div>
+              <div class="section-title">Fix before handoff</div>
+              <div class="section-desc">Issues you can resolve directly in Figma right now</div>
+              <div class="grid">
+                <div class="metric">
+                  <span class="metric-label">Numbered names</span>
+                  <span class="metric-value ${severity(numberedNameCount, 5, 12, totalNodes)}">${numberedNameCount}</span>
+                  <span class="metric-sub">layers with auto-generated names</span>
+                  ${fb(feedbackNumberedNames(numberedNameCount))}
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Groups</span>
+                  <span class="metric-value ${severity(groupCount, 1, 6, totalNodes)}">${groupCount}</span>
+                  <span class="metric-sub">replace with frames</span>
+                  ${fb(feedbackGroups(groupCount))}
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Off-grid spacing</span>
+                  <span class="metric-value ${severity(unusualSpacingCount, 4, 12, totalNodes)}">${unusualSpacingCount}</span>
+                  ${renderTags(spacingTags.slice(0, 6))}
+                  ${fb(feedbackSpacing(unusualSpacingCount))}
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Unlinked styles</span>
+                  <span class="metric-value ${severity(totalStyles, 3, 8, totalNodes)}">${totalStyles}</span>
+                  <span class="metric-sub">no reusable style attached</span>
+                  ${fb(feedbackStyles(totalStyles))}
+                </div>
+                <div class="metric wide">
+                  <span class="metric-label">Accessibility violations</span>
+                  <span class="metric-value ${severity(accessibilityViolations, 1, 5, totalNodes)}">${accessibilityViolations}</span>
+                  <span class="metric-sub">contrast + touch target issues</span>
+                  ${fb(feedbackAccessibility(accessibilityViolations))}
                 </div>
               </div>
             </div>
 
-            <!-- ══ SECTION 2: FOR ENGINEERS ══ -->
+            <div class="divider"></div>
+
+            <!-- ══ SECTION 2: DESIGN QUALITY ══ -->
             <div class="section-block">
-              <div class="section-header">
-                <div class="section-role engineer">For engineers</div>
-                <div class="section-title">Build complexity</div>
-                <div class="section-desc">Signals that affect how long this will take to code</div>
-              </div>
-              <div class="section-inner">
-                <div class="grid">
-                  <div class="metric">
-                    <span class="metric-label">Elements</span>
-                    <span class="metric-value">${totalNodes}</span>
-                    ${fb(feedbackNodes(totalNodes))}
-                  </div>
-                  <div class="metric">
-                    <span class="metric-label">Max depth</span>
-                    <span class="metric-value ${severity(maxDepth, 8, 14)}">${maxDepth}</span>
-                    ${fb(feedbackDepth(maxDepth))}
-                  </div>
-                  <div class="metric">
-                    <span class="metric-label">Effects</span>
-                    <span class="metric-value ${severity(effectCount, 6, 16)}">${effectCount}</span>
-                    <span class="metric-sub">shadows, blurs to replicate</span>
-                    ${fb(feedbackEffects(effectCount))}
-                  </div>
-                  <div class="metric">
-                    <span class="metric-label">Typefaces</span>
-                    <span class="metric-value ${severity(typefaceCount, 3, 5)}">${typefaceCount}</span>
-                    ${renderTags(typefaceNames)}
-                    ${fb(feedbackTypefaces(typefaceCount))}
-                  </div>
+              <div class="section-label shared">For everyone</div>
+              <div class="section-title">Design quality</div>
+              <div class="section-desc">Proportions and structure relevant to the whole team</div>
+              <div class="grid">
+                <div class="metric">
+                  <span class="metric-label">Components</span>
+                  <span class="metric-value">${pct(componentProportion)}</span>
+                  <div class="bar-track"><div class="bar-fill" id="bar-comp"></div></div>
+                  <span class="metric-sub">of all frame-like nodes</span>
+                  ${fb(feedbackComponents(componentProportion))}
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Auto-layout</span>
+                  <span class="metric-value">${pct(autoLayoutProportion)}</span>
+                  <div class="bar-track"><div class="bar-fill" id="bar-auto"></div></div>
+                  <span class="metric-sub">of all frame-like nodes</span>
+                  ${fb(feedbackAutoLayout(autoLayoutProportion))}
                 </div>
               </div>
             </div>
 
-            <!-- ══ SECTION 3: FOR EVERYONE ══ -->
-            <div class="section-block">
-              <div class="section-header">
-                <div class="section-role shared">For everyone</div>
-                <div class="section-title">Design quality overview</div>
-                <div class="section-desc">Proportions and structure relevant to the whole team</div>
-              </div>
-              <div class="section-inner">
-                <div class="grid">
-                  <div class="metric">
-                    <span class="metric-label">Components</span>
-                    <span class="metric-value">${pct(componentProportion)}</span>
-                    <div class="bar-track"><div class="bar-fill" id="bar-comp"></div></div>
-                    <span class="metric-sub">of all frame-like nodes</span>
-                    ${fb(feedbackComponents(componentProportion))}
-                  </div>
-                  <div class="metric">
-                    <span class="metric-label">Auto-layout</span>
-                    <span class="metric-value">${pct(autoLayoutProportion)}</span>
-                    <div class="bar-track"><div class="bar-fill" id="bar-auto"></div></div>
-                    <span class="metric-sub">of all frame-like nodes</span>
-                    ${fb(feedbackAutoLayout(autoLayoutProportion))}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <div class="divider"></div>
 
             <!-- ══ VIOLATION LISTS ══ -->
             <div class="section-block">
-              <div class="section-header">
-                <div class="section-role shared">For everyone</div>
-                <div class="section-title">Violations — click to select in Figma</div>
-                <div class="section-desc">Expand a category to jump directly to problem layers</div>
-              </div>
-              <div class="section-inner">
-                <div class="vlist-section">
-                  ${renderViolationGroup('Accessibility',    '⚠',  accessibilityNodes  || [])}
-                  ${renderViolationGroup('Unlinked styles',  '🎨', unlinkedStyleNodes  || [])}
-                  ${renderViolationGroup('Off-grid spacing', '📐', offGridNodes        || [])}
-                  ${renderViolationGroup('Numbered names',   '#',  numberedNameNodes   || [])}
-                  ${renderViolationGroup('No auto-layout',   '⬜', noAutoLayoutNodes   || [])}
-                </div>
+              <div class="section-label shared">For everyone</div>
+              <div class="section-title">Violations</div>
+              <div class="section-desc">Expand a category to jump directly to problem layers</div>
+              <div class="vlist-section">
+                ${renderViolationGroup('Accessibility',    '⚠',  accessibilityNodes  || [])}
+                ${renderViolationGroup('Unlinked styles',  '🎨', unlinkedStyleNodes  || [])}
+                ${renderViolationGroup('Off-grid spacing', '📐', offGridNodes        || [])}
+                ${renderViolationGroup('Numbered names',   '#',  numberedNameNodes   || [])}
+                ${renderViolationGroup('No auto-layout',   '⬜', noAutoLayoutNodes   || [])}
               </div>
             </div>
           `;
 
           requestAnimationFrame(() => {
+            document.getElementById('quickglance').classList.add('visible');
             document.querySelectorAll('.metric').forEach(el => el.classList.add('visible'));
             document.getElementById('bar-comp').style.width = pct(componentProportion);
             document.getElementById('bar-auto').style.width = pct(autoLayoutProportion);

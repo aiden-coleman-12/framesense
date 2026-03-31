@@ -34,6 +34,10 @@ type AnalysisResult = {
 
 // ── Flow-traversal helpers ───────────────────────────────────────────────────
 
+function isSceneNode(node: BaseNode): node is SceneNode {
+  return node.type !== 'DOCUMENT' && node.type !== 'PAGE';
+}
+
 function isContainerNode(node: BaseNode | null): node is BaseNode & ChildrenMixin {
   return !!node && "children" in node;
 }
@@ -391,7 +395,7 @@ function analyzeNode(root: SceneNode): AnalysisResult {
     // ── Numbered layer names ──
     if (/\d/.test(node.name)) {
       numberedNameCount++;
-      addRef(numberedNameNodes, node);
+      if (isSceneNode(node)) addRef(numberedNameNodes, node);
     }
 
     // ── Frame-like nodes: components & auto-layout ──
@@ -415,7 +419,7 @@ function analyzeNode(root: SceneNode): AnalysisResult {
       if ("layoutMode" in node && (node as FrameNode).layoutMode !== "NONE") {
         autoLayoutCount++;
       } else if (node.type === "FRAME") {
-        addRef(noAutoLayoutNodes, node);
+        if (isSceneNode(node)) addRef(noAutoLayoutNodes, node);
       }
     }
 
@@ -452,7 +456,7 @@ function analyzeNode(root: SceneNode): AnalysisResult {
           badProps.push(`${label}: ${val}`);
         }
       }
-      if (badProps.length > 0) {
+      if (badProps.length > 0 && isSceneNode(node)) {
         addRef(offGridNodes, node, badProps.join("  ·  "));
       }
     }
@@ -487,7 +491,7 @@ function analyzeNode(root: SceneNode): AnalysisResult {
             node.width
           )}×${Math.round(node.height)}px)`
         );
-        addRef(accessibilityNodes, node);
+        if (isSceneNode(node)) addRef(accessibilityNodes, node);
       }
     }
 
@@ -517,7 +521,7 @@ function analyzeNode(root: SceneNode): AnalysisResult {
                   2
                 )}:1 (needs ${threshold}:1)`
               );
-              addRef(accessibilityNodes, node);
+              if (isSceneNode(node)) addRef(accessibilityNodes, node);
             }
           }
         }
@@ -565,7 +569,7 @@ function analyzeNode(root: SceneNode): AnalysisResult {
 
     if (styleViolations > 0) {
       totalStyles += styleViolations;
-      addRef(unlinkedStyleNodes, node);
+      if (isSceneNode(node)) addRef(unlinkedStyleNodes, node);
     }
 
     // ── Recurse ──
