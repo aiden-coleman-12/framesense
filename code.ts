@@ -202,7 +202,7 @@ figma.ui.onmessage = async (msg: {
     if (!("children" in root)) {
       figma.ui.postMessage({
         type: "error",
-        message: "Selected node has no children.",
+        message: "Selected node has no children. Please select a frame, group, or section.",
       });
       return;
     }
@@ -384,7 +384,7 @@ function analyzeNode(root: SceneNode): AnalysisResult {
     }
   }
 
-  function traverse(node: SceneNode, depth: number) {
+  function traverse(node: BaseNode, depth: number): void {
     totalNodes++;
     maxDepth = Math.max(maxDepth, depth);
 
@@ -570,7 +570,7 @@ function analyzeNode(root: SceneNode): AnalysisResult {
 
     // ── Recurse ──
     if ("children" in node) {
-      for (const child of node.children) {
+      for (const child of (node as ChildrenMixin).children) {
         traverse(child, depth + 1);
       }
     }
