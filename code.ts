@@ -6,187 +6,23 @@ type NodeRef = { id: string; name: string; details?: string };
 type FlowRef  = { nodeId: string; name: string };
 
 type AnalysisResult = {
-  // Structure
+  // Existing
   totalNodes: number;
   maxDepth: number;
   componentProportion: number;
   autoLayoutProportion: number;
   numberedNameCount: number;
-  // Complexity
+  // Dan's additions
   effectCount: number;
   groupCount: number;
   unusualSpacingCount: number;
   unusualSpacingValues: number[];
   typefaceCount: number;
   typefaceNames: string[];
-  // Accessibility
-  accessibilityViolations: number;
-  accessibilityDetails: string[];
-  // Design tokens
-  totalStyles: number;
-  // Violation node lists
-  accessibilityNodes: NodeRef[];
-  unlinkedStyleNodes: NodeRef[];
-  offGridNodes: NodeRef[];
-  numberedNameNodes: NodeRef[];
-  noAutoLayoutNodes: NodeRef[];
 };
 
-// ── Flow-traversal helpers ───────────────────────────────────────────────────
 
-function isContainerNode(node: BaseNode | null): node is BaseNode & ChildrenMixin {
-  return !!node && "children" in node;
-}
-
-function isFrameLikeNode(node: BaseNode | null): node is SceneNode & ChildrenMixin {
-  return (
-    !!node &&
-    (node.type === "FRAME" ||
-      node.type === "GROUP" ||
-      node.type === "SECTION" ||
-      node.type === "COMPONENT" ||
-      node.type === "COMPONENT_SET" ||
-      node.type === "INSTANCE")
-  );
-}
-
-function getContainingScreen(
-  node: BaseNode | null
-): (SceneNode & ChildrenMixin) | null {
-  let current: BaseNode | null = node;
-  while (current) {
-    if (isFrameLikeNode(current)) return current;
-    current = current.parent;
-  }
-  return null;
-}
-
-async function collectReactionDestinationsDeep(
-  node: BaseNode
-): Promise<string[]> {
-  const destinationIds = new Set<string>();
-
-  async function walk(current: BaseNode): Promise<void> {
-    if ("reactions" in current) {
-      const reactions = (current as SceneNode & { reactions: Reaction[] })
-        .reactions;
-      for (const reaction of reactions) {
-        const action = reaction.action as {
-          type?: string;
-          destinationId?: string;
-        } | null;
-        if (action && action.type === "NODE" && action.destinationId) {
-          destinationIds.add(action.destinationId);
-        }
-      }
-    }
-    if ("children" in current) {
-      for (const child of (current as ChildrenMixin).children) {
-        await walk(child);
-      }
-    }
-  }
-
-  await walk(node);
-  return Array.from(destinationIds);
-}
-
-async function getConnectedFlowNodes(
-  startNode: BaseNode
-): Promise<(BaseNode & ChildrenMixin)[]> {
-  const startScreen = getContainingScreen(startNode);
-  if (!startScreen) return [];
-
-  const visitedScreenIds = new Set<string>();
-  const queuedScreenIds  = new Set<string>([startScreen.id]);
-  const queue: (SceneNode & ChildrenMixin)[] = [startScreen];
-  const results: (BaseNode & ChildrenMixin)[] = [];
-
-  while (queue.length > 0) {
-    const screen = queue.shift()!;
-    queuedScreenIds.delete(screen.id);
-
-    if (visitedScreenIds.has(screen.id)) continue;
-    visitedScreenIds.add(screen.id);
-    results.push(screen);
-
-    const destinationIds = await collectReactionDestinationsDeep(screen);
-    for (const destId of destinationIds) {
-      const destNode   = await figma.getNodeByIdAsync(destId);
-      const destScreen = getContainingScreen(destNode);
-      if (
-        destScreen &&
-        !visitedScreenIds.has(destScreen.id) &&
-        !queuedScreenIds.has(destScreen.id)
-      ) {
-        queue.push(destScreen);
-        queuedScreenIds.add(destScreen.id);
-      }
-    }
-  }
-
-  return results;
-}
-
-async function getFlowsForNode(node: BaseNode): Promise<FlowRef[]> {
-  const allFlows = figma.currentPage.flowStartingPoints;
-  if (allFlows.length === 0) return [];
-
-  const matchingFlows: FlowRef[] = [];
-
-  const ancestorIds = new Set<string>();
-  let current: BaseNode | null = node;
-  while (current) {
-    ancestorIds.add(current.id);
-    current = current.parent;
-  }
-
-  for (const flow of allFlows) {
-    if (ancestorIds.has(flow.nodeId)) {
-      matchingFlows.push({ nodeId: flow.nodeId, name: flow.name });
-      continue;
-    }
-    const startNode = await figma.getNodeByIdAsync(flow.nodeId);
-    if (!startNode) continue;
-
-    const connectedNodes = await getConnectedFlowNodes(startNode);
-    if (connectedNodes.some((n) => ancestorIds.has(n.id))) {
-      matchingFlows.push({ nodeId: flow.nodeId, name: flow.name });
-    }
-  }
-
-  return matchingFlows;
-}
-
-async function sendFlowsForSelection(): Promise<void> {
-  const selection = figma.currentPage.selection;
-  if (selection.length === 1) {
-    const flows = await getFlowsForNode(selection[0]);
-    figma.ui.postMessage({ type: "flows-list", flows });
-  } else {
-    figma.ui.postMessage({ type: "flows-list", flows: [] });
-  }
-}
-
-// Update flow dropdown whenever the user changes their Figma selection
-figma.on("selectionchange", () => {
-  sendFlowsForSelection();
-});
-
-// ── Message handler ──────────────────────────────────────────────────────────
-
-figma.ui.onmessage = async (msg: {
-  type: string;
-  nodeId?: string;
-  id?: string;
-}) => {
-  // ── ui-ready: populate flow dropdown on first open ──
-  if (msg.type === "ui-ready") {
-    await sendFlowsForSelection();
-    return;
-  }
-
-  // ── analyze-selection: single-frame mode ──
+figma.ui.onmessage = (msg) => {
   if (msg.type === "analyze-selection") {
     const selection = figma.currentPage.selection;
 
@@ -199,44 +35,8 @@ figma.ui.onmessage = async (msg: {
     }
 
     const root = selection[0];
+
     if (!("children" in root)) {
-      figma.ui.postMessage({
-        type: "error",
-        message: "Selected node has no children.",
-      });
-      return;
-    }
-
-    figma.ui.postMessage({
-      type: "result",
-      data: analyzeNode(root),
-      mode: "frame",
-      frameCount: 1,
-    });
-    return;
-  }
-
-  // ── analyze-flow: entire prototype flow mode ──
-  if (msg.type === "analyze-flow") {
-    if (!msg.nodeId) {
-      figma.ui.postMessage({
-        type: "error",
-        message: "No flow node ID provided.",
-      });
-      return;
-    }
-
-    const startNode = await figma.getNodeByIdAsync(msg.nodeId);
-    if (!startNode) {
-      figma.ui.postMessage({
-        type: "error",
-        message: "Flow starting frame not found.",
-      });
-      return;
-    }
-
-    const flowNodes = await getConnectedFlowNodes(startNode);
-    if (flowNodes.length === 0) {
       figma.ui.postMessage({
         type: "error",
         message: "No connected frames found in this flow.",
@@ -244,151 +44,37 @@ figma.ui.onmessage = async (msg: {
       return;
     }
 
-    figma.ui.postMessage({
-      type: "result",
-      data: mergeResults(flowNodes.map((n) => analyzeNode(n as SceneNode))),
-      mode: "flow",
-      frameCount: flowNodes.length,
-    });
-    return;
-  }
-
-  // ── select-node: click violation row → scroll to node in Figma ──
-  if (msg.type === "select-node") {
-    figma.getNodeByIdAsync(msg.id!).then((node) => {
-      if (node && "type" in node) {
-        figma.currentPage.selection = [node as SceneNode];
-        figma.viewport.scrollAndZoomIntoView([node as SceneNode]);
-      }
-    });
+    const result = analyzeNode(root);
+    figma.ui.postMessage({ type: "result", data: result });
   }
 };
 
-// ── Merge helpers (used by flow mode) ───────────────────────────────────────
-
-function avg(nums: number[]): number {
-  return nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : 0;
-}
-
-function mergeRefs(target: NodeRef[], source: NodeRef[]): void {
-  for (const ref of source) {
-    if (!target.find((n) => n.id === ref.id)) target.push(ref);
-  }
-}
-
-function mergeResults(results: AnalysisResult[]): AnalysisResult {
-  const allTypefaces   = new Set<string>();
-  const allSpacingVals = new Set<number>();
-
-  let totalNodes          = 0;
-  let maxDepth            = 0;
-  let numberedNameCount   = 0;
-  let effectCount         = 0;
-  let groupCount          = 0;
-  let unusualSpacingCount = 0;
-  let accessibilityViolations = 0;
-  const accessibilityDetails: string[] = [];
-  let totalStyles = 0;
-
-  const accessibilityNodes: NodeRef[] = [];
-  const unlinkedStyleNodes: NodeRef[] = [];
-  const offGridNodes:        NodeRef[] = [];
-  const numberedNameNodes:   NodeRef[] = [];
-  const noAutoLayoutNodes:   NodeRef[] = [];
-
-  for (const r of results) {
-    totalNodes          += r.totalNodes;
-    maxDepth             = Math.max(maxDepth, r.maxDepth);
-    numberedNameCount   += r.numberedNameCount;
-    effectCount         += r.effectCount;
-    groupCount          += r.groupCount;
-    unusualSpacingCount += r.unusualSpacingCount;
-    accessibilityViolations += r.accessibilityViolations;
-    accessibilityDetails.push(...r.accessibilityDetails);
-    totalStyles += r.totalStyles;
-
-    r.typefaceNames.forEach((t) => allTypefaces.add(t));
-    r.unusualSpacingValues.forEach((v) => allSpacingVals.add(v));
-
-    mergeRefs(accessibilityNodes, r.accessibilityNodes);
-    mergeRefs(unlinkedStyleNodes, r.unlinkedStyleNodes);
-    mergeRefs(offGridNodes,        r.offGridNodes);
-    mergeRefs(numberedNameNodes,   r.numberedNameNodes);
-    mergeRefs(noAutoLayoutNodes,   r.noAutoLayoutNodes);
-  }
-
-  return {
-    totalNodes,
-    maxDepth,
-    componentProportion:  avg(results.map((r) => r.componentProportion)),
-    autoLayoutProportion: avg(results.map((r) => r.autoLayoutProportion)),
-    numberedNameCount,
-    effectCount,
-    groupCount,
-    unusualSpacingCount,
-    unusualSpacingValues: Array.from(allSpacingVals).sort((a, b) => a - b),
-    typefaceCount: allTypefaces.size,
-    typefaceNames: Array.from(allTypefaces).sort(),
-    accessibilityViolations,
-    accessibilityDetails,
-    totalStyles,
-    accessibilityNodes,
-    unlinkedStyleNodes,
-    offGridNodes,
-    numberedNameNodes,
-    noAutoLayoutNodes,
-  };
-}
-
-// ── Analysis ─────────────────────────────────────────────────────────────────
-
+// The spacing grid to validate against (8pt is standard; adjust to your design system)
 const SPACING_GRID = 8;
 
-function relativeLuminance(r: number, g: number, b: number): number {
-  const toLinear = (c: number) =>
-    c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-  return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
-}
-
-function contrastRatio(lum1: number, lum2: number): number {
-  const lighter = Math.max(lum1, lum2);
-  const darker  = Math.min(lum1, lum2);
-  return (lighter + 0.05) / (darker + 0.05);
-}
-
 function analyzeNode(root: SceneNode): AnalysisResult {
-  let totalNodes    = 0;
-  let maxDepth      = 0;
-  let totalFrameLike   = 0;
-  let componentCount   = 0;
-  let autoLayoutCount  = 0;
+  let totalNodes = 0;
+  let maxDepth = 0;
+
+  // Existing counters
+  let totalFrameLike = 0;
+  let componentCount = 0;
+  let autoLayoutCount = 0;
   let numberedNameCount = 0;
-  let effectCount        = 0;
-  let groupCount         = 0;
+
+  // Dan's counters
+  let effectCount = 0;
+  let groupCount = 0;
   let unusualSpacingCount = 0;
-  const unusualSpacingSet = new Set<number>();
-  const typefaceSet       = new Set<string>();
-  let accessibilityViolations = 0;
-  const accessibilityDetails: string[] = [];
-  let totalStyles = 0;
+  const unusualSpacingSet = new Set<number>(); // unique off-grid values seen
+  const typefaceSet = new Set<string>();
 
-  const accessibilityNodes: NodeRef[] = [];
-  const unlinkedStyleNodes: NodeRef[] = [];
-  const offGridNodes:        NodeRef[] = [];
-  const numberedNameNodes:   NodeRef[] = [];
-  const noAutoLayoutNodes:   NodeRef[] = [];
-
-  function addRef(list: NodeRef[], node: SceneNode, details?: string) {
-    if (!list.find((r) => r.id === node.id)) {
-      list.push({ id: node.id, name: node.name, details });
-    }
-  }
-
-  function traverse(node: SceneNode, depth: number) {
+  function traverse(node: BaseNode, depth: number): void {
     totalNodes++;
     maxDepth = Math.max(maxDepth, depth);
 
-    // ── Numbered layer names ──
+    // ------- Existing logic -------
+
     if (/\d/.test(node.name)) {
       numberedNameCount++;
       addRef(numberedNameNodes, node);
@@ -419,34 +105,41 @@ function analyzeNode(root: SceneNode): AnalysisResult {
       }
     }
 
-    // ── Effects ──
+    // ------- Dan: 1. Effect count -------
+    // Counts every shadow, blur, etc. applied to any node.
     if ("effects" in node && node.effects.length > 0) {
       effectCount += node.effects.length;
     }
 
-    // ── Groups ──
+    // ------- Dan: 2. Group count -------
+    // Groups are explicitly typed. Flags poor structure vs. frames.
     if (node.type === "GROUP") {
       groupCount++;
     }
 
-    // ── Off-grid spacing ──
-    if ("layoutMode" in node && (node as FrameNode).layoutMode !== "NONE") {
+    // ------- Dan: 3. Detached instances (heuristic) -------
+    // Figma has no native "isDetached" flag — once detached, an instance
+    // becomes a plain FRAME and loses its mainComponent link.
+    // Heuristic: non-root FRAMEs with a PascalCase name are likely
+    // detached instances (designers typically PascalCase component names).
+
+    // ------- Dan: 4. Unusual spacing values -------
+    // Checks all auto-layout padding + gap values against the 8pt grid.
+    if (
+      "layoutMode" in node &&
+      (node as FrameNode).layoutMode !== "NONE"
+    ) {
       const f = node as FrameNode;
-      const ALLOWED_SPACING = new Set([
-        1, 2, 4, 6, 8, 10, 12, 16, 20, 24, 32, 40, 48, 64, 96, 128, 192, 256,
-        512,
-      ]);
-      const SPACING_LABELS: [number, string][] = [
-        [f.paddingLeft,   "L"],
-        [f.paddingRight,  "R"],
-        [f.paddingTop,    "T"],
-        [f.paddingBottom, "B"],
-        [f.itemSpacing,   "Gap"],
+      const spacingValues = [
+        f.paddingLeft,
+        f.paddingRight,
+        f.paddingTop,
+        f.paddingBottom,
+        f.itemSpacing,
       ];
 
-      const badProps: string[] = [];
-      for (const [val, label] of SPACING_LABELS) {
-        if (val > 0 && !ALLOWED_SPACING.has(val)) {
+      for (const val of spacingValues) {
+        if (val > 0 && val % SPACING_GRID !== 0) {
           unusualSpacingCount++;
           unusualSpacingSet.add(val);
           badProps.push(`${label}: ${val}`);
@@ -457,12 +150,16 @@ function analyzeNode(root: SceneNode): AnalysisResult {
       }
     }
 
-    // ── Typefaces ──
+    // ------- Dan: 5. Typefaces used -------
+    // Collects unique font families. Handles mixed-style text nodes where
+    // different runs may use different fonts (fontName returns a Symbol).
     if (node.type === "TEXT") {
       const textNode = node as TextNode;
       if (typeof textNode.fontName !== "symbol") {
+        // Single consistent font across the whole text node
         typefaceSet.add(textNode.fontName.family);
       } else {
+        // Mixed fonts — walk each character and collect unique families
         const len = textNode.characters.length;
         for (let i = 0; i < len; i++) {
           const fn = textNode.getRangeFontName(i, i + 1);
@@ -570,7 +267,7 @@ function analyzeNode(root: SceneNode): AnalysisResult {
 
     // ── Recurse ──
     if ("children" in node) {
-      for (const child of node.children) {
+      for (const child of (node as ChildrenMixin).children) {
         traverse(child, depth + 1);
       }
     }
@@ -581,10 +278,8 @@ function analyzeNode(root: SceneNode): AnalysisResult {
   return {
     totalNodes,
     maxDepth,
-    componentProportion:
-      totalFrameLike > 0 ? componentCount / totalFrameLike : 0,
-    autoLayoutProportion:
-      totalFrameLike > 0 ? autoLayoutCount / totalFrameLike : 0,
+    componentProportion,
+    autoLayoutProportion,
     numberedNameCount,
     effectCount,
     groupCount,
