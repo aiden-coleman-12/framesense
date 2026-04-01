@@ -232,6 +232,17 @@
         transition: opacity 0.3s ease, transform 0.3s ease;
       }
       .metric.visible { opacity: 1; transform: translateY(0); }
+      .metric[onclick] {
+        cursor: pointer;
+      }
+      .metric[onclick]:hover {
+        background: #e5e3e0;
+        outline: 2px solid #dddbd8;
+        outline-offset: -2px;
+      }
+      .metric[onclick]:active {
+        background: #dddbd8;
+      }
 
       .metric:nth-child(1)  { transition-delay: 0.05s; }
       .metric:nth-child(2)  { transition-delay: 0.10s; }
@@ -531,7 +542,7 @@
         parent.postMessage({ pluginMessage: { type: 'select-node', id } }, '*');
       }
 
-      function renderViolationGroup(title, icon, nodes) {
+      function renderViolationGroup(title, icon, nodes, groupId) {
         const count    = nodes.length;
         const cntClass = count === 0 ? 'ok' : count >= 5 ? 'danger' : '';
         const rows = count === 0
@@ -546,8 +557,9 @@
                 <span class="vnode-arrow">▶</span>
               </div>`).join('');
 
+        const idAttr = groupId ? ` id="${groupId}"` : '';
         return `
-          <div class="vgroup">
+          <div class="vgroup"${idAttr}>
             <div class="vgroup-header" onclick="this.closest('.vgroup').classList.toggle('open')">
               <span class="vgroup-title">
                 ${title}
@@ -557,6 +569,13 @@
             </div>
             <div class="vgroup-body">${rows}</div>
           </div>`;
+      }
+
+      function jumpToGroup(groupId) {
+        const el = document.getElementById(groupId);
+        if (!el) return;
+        el.classList.add('open');
+        setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
       }
 
       // ── Feedback functions ───────────────────────────────────────────────────
@@ -705,7 +724,7 @@
               <div class="section-title">Fix before handoff</div>
               <div class="section-desc">Issues you can resolve directly in Figma right now</div>
               <div class="grid">
-                <div class="metric">
+                <div class="metric" onclick="jumpToGroup('vgroup-numbered')">
                   <span class="metric-label">Numbered names</span>
                   <span class="metric-value ${severity(numberedNameCount, 5, 12, totalNodes)}">${numberedNameCount}</span>
                   <span class="metric-sub">layers with auto-generated names</span>
@@ -717,19 +736,19 @@
                   <span class="metric-sub">replace with frames</span>
                   ${fb(feedbackGroups(groupCount))}
                 </div>
-                <div class="metric">
+                <div class="metric" onclick="jumpToGroup('vgroup-offgrid')">
                   <span class="metric-label">Off-grid spacing</span>
                   <span class="metric-value ${severity(unusualSpacingCount, 4, 12, totalNodes)}">${unusualSpacingCount}</span>
                   ${renderTags(spacingTags.slice(0, 6))}
                   ${fb(feedbackSpacing(unusualSpacingCount))}
                 </div>
-                <div class="metric">
+                <div class="metric" onclick="jumpToGroup('vgroup-styles')">
                   <span class="metric-label">Unlinked styles</span>
                   <span class="metric-value ${severity(totalStyles, 3, 8, totalNodes)}">${totalStyles}</span>
                   <span class="metric-sub">no reusable style attached</span>
                   ${fb(feedbackStyles(totalStyles))}
                 </div>
-                <div class="metric wide">
+                <div class="metric wide" onclick="jumpToGroup('vgroup-a11y')">
                   <span class="metric-label">Accessibility violations</span>
                   <span class="metric-value ${severity(accessibilityViolations, 1, 5, totalNodes)}">${accessibilityViolations}</span>
                   <span class="metric-sub">contrast + touch target issues</span>
@@ -771,11 +790,11 @@
               <div class="section-title">Violations</div>
               <div class="section-desc">Expand a category to jump directly to problem layers</div>
               <div class="vlist-section">
-                ${renderViolationGroup('Accessibility',    '⚠',  accessibilityNodes  || [])}
-                ${renderViolationGroup('Unlinked styles',  '🎨', unlinkedStyleNodes  || [])}
-                ${renderViolationGroup('Off-grid spacing', '📐', offGridNodes        || [])}
-                ${renderViolationGroup('Numbered names',   '#',  numberedNameNodes   || [])}
-                ${renderViolationGroup('No auto-layout',   '⬜', noAutoLayoutNodes   || [])}
+                ${renderViolationGroup('Accessibility',    '⚠',  accessibilityNodes  || [], 'vgroup-a11y')}
+                ${renderViolationGroup('Unlinked styles',  '🎨', unlinkedStyleNodes  || [], 'vgroup-styles')}
+                ${renderViolationGroup('Off-grid spacing', '📐', offGridNodes        || [], 'vgroup-offgrid')}
+                ${renderViolationGroup('Numbered names',   '#',  numberedNameNodes   || [], 'vgroup-numbered')}
+                ${renderViolationGroup('No auto-layout',   '⬜', noAutoLayoutNodes   || [], 'vgroup-noautolayout')}
               </div>
             </div>
           `;
