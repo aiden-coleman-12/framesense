@@ -30,6 +30,7 @@ type AnalysisResult = {
   offGridNodes: NodeRef[];
   numberedNameNodes: NodeRef[];
   noAutoLayoutNodes: NodeRef[];
+  groupNodes: NodeRef[];
 };
 
 // ── Flow-traversal helpers ───────────────────────────────────────────────────
@@ -299,6 +300,7 @@ function mergeResults(results: AnalysisResult[]): AnalysisResult {
   const offGridNodes:        NodeRef[] = [];
   const numberedNameNodes:   NodeRef[] = [];
   const noAutoLayoutNodes:   NodeRef[] = [];
+  const groupNodes:          NodeRef[] = [];
 
   for (const r of results) {
     totalNodes          += r.totalNodes;
@@ -319,6 +321,7 @@ function mergeResults(results: AnalysisResult[]): AnalysisResult {
     mergeRefs(offGridNodes,        r.offGridNodes);
     mergeRefs(numberedNameNodes,   r.numberedNameNodes);
     mergeRefs(noAutoLayoutNodes,   r.noAutoLayoutNodes);
+    mergeRefs(groupNodes,          r.groupNodes);
   }
 
   return {
@@ -341,6 +344,7 @@ function mergeResults(results: AnalysisResult[]): AnalysisResult {
     offGridNodes,
     numberedNameNodes,
     noAutoLayoutNodes,
+    groupNodes,
   };
 }
 
@@ -381,6 +385,7 @@ function analyzeNode(root: SceneNode): AnalysisResult {
   const offGridNodes:        NodeRef[] = [];
   const numberedNameNodes:   NodeRef[] = [];
   const noAutoLayoutNodes:   NodeRef[] = [];
+  const groupNodes:          NodeRef[] = [];
 
   function addRef(list: NodeRef[], node: SceneNode, details?: string) {
     if (!list.find((r) => r.id === node.id)) {
@@ -431,6 +436,7 @@ function analyzeNode(root: SceneNode): AnalysisResult {
     // ── Groups ──
     if (node.type === "GROUP") {
       groupCount++;
+      if (isSceneNode(node)) addRef(groupNodes, node);
     }
 
     // ── Off-grid spacing ──
@@ -604,5 +610,6 @@ function analyzeNode(root: SceneNode): AnalysisResult {
     offGridNodes,
     numberedNameNodes,
     noAutoLayoutNodes,
+    groupNodes,
   };
 }
