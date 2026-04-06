@@ -129,7 +129,7 @@
         margin-bottom: 18px;
       }
 
-      /* ── Quick-glance bar (build complexity) ── */
+      /* ── Quick-glance bar ── */
       .quickglance {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -175,7 +175,7 @@
         margin-top: 1px;
       }
 
-      /* ── Section headings (flat, no box) ── */
+      /* ── Section headings ── */
       .section-label {
         font-size: 9px;
         font-weight: 600;
@@ -187,7 +187,6 @@
         align-items: center;
         gap: 8px;
       }
-      .section-label.engineer { color: #2277cc; }
       .section-label.shared   { color: #888; }
       .section-label::after {
         content: '';
@@ -230,19 +229,35 @@
         opacity: 0;
         transform: translateY(6px);
         transition: opacity 0.3s ease, transform 0.3s ease;
+        position: relative;
       }
       .metric.visible { opacity: 1; transform: translateY(0); }
-      .metric[onclick] {
+
+      /* Clickable card styles */
+      .metric.clickable {
         cursor: pointer;
+        padding-right: 28px;
       }
-      .metric[onclick]:hover {
+      .metric.clickable::after {
+        content: '▶';
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 8px;
+        color: #bbb;
+        transition: color 0.15s, transform 0.15s;
+      }
+      .metric.clickable:hover {
         background: #e5e3e0;
         outline: 2px solid #dddbd8;
         outline-offset: -2px;
       }
-      .metric[onclick]:active {
-        background: #dddbd8;
+      .metric.clickable:hover::after {
+        color: #888;
+        transform: translateY(-50%) translateX(2px);
       }
+      .metric.clickable:active { background: #dddbd8; }
 
       .metric:nth-child(1)  { transition-delay: 0.05s; }
       .metric:nth-child(2)  { transition-delay: 0.10s; }
@@ -319,129 +334,6 @@
         padding: 2px 7px;
         color: #888;
       }
-      .tag.violation {
-        color: #d63b3b;
-        background: #fce8e8;
-      }
-
-      /* ── Violation groups ── */
-      .vlist-section {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-      }
-
-      .vgroup {
-        border-radius: 8px;
-        overflow: hidden;
-      }
-
-      .vgroup-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 12px;
-        background: #eceae7;
-        cursor: pointer;
-        user-select: none;
-        transition: background 0.15s;
-        border-radius: 8px;
-      }
-      .vgroup.open .vgroup-header {
-        border-radius: 8px 8px 0 0;
-      }
-      .vgroup-header:hover { background: #e5e3e0; }
-
-      .vgroup-title {
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: #888;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .vgroup-count {
-        font-family: 'DM Mono', monospace;
-        font-size: 11px;
-        font-weight: 500;
-        color: #c47d00;
-      }
-      .vgroup-count.danger { color: #d63b3b; }
-      .vgroup-count.ok     { color: #1a9e2e; }
-
-      .vgroup-chevron {
-        font-size: 9px;
-        color: #999;
-        transition: transform 0.2s;
-      }
-      .vgroup.open .vgroup-chevron { transform: rotate(180deg); }
-
-      .vgroup-body {
-        display: none;
-        flex-direction: column;
-        background: #f0ede9;
-        border-radius: 0 0 8px 8px;
-      }
-      .vgroup.open .vgroup-body { display: flex; }
-
-      .vnode {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 8px 12px;
-        border-top: 1px solid #e5e3e0;
-        cursor: pointer;
-        transition: background 0.12s;
-      }
-      .vnode:hover  { background: #e8e6e2; }
-      .vnode:active { background: #e0deda; }
-
-      .vnode-icon { font-size: 11px; flex-shrink: 0; opacity: 0.4; }
-
-      .vnode-name {
-        font-family: 'DM Mono', monospace;
-        font-size: 11px;
-        color: #333;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .vnode-arrow {
-        font-size: 9px;
-        color: #aaa;
-        flex-shrink: 0;
-        transition: color 0.12s;
-      }
-      .vnode:hover .vnode-arrow { color: #888; }
-
-      .vnode-text {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        flex: 1;
-        overflow: hidden;
-      }
-
-      .vnode-details {
-        font-family: 'DM Mono', monospace;
-        font-size: 10px;
-        color: #888;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .empty-state {
-        padding: 10px 12px;
-        border-top: 1px solid #e5e3e0;
-        font-size: 11px;
-        color: #1a9e2e;
-        font-family: 'DM Mono', monospace;
-      }
 
       .error {
         margin-top: 14px;
@@ -454,11 +346,118 @@
         line-height: 1.5;
       }
 
-      /* thin divider */
       .divider {
         height: 1px;
         background: #dddbd8;
         margin: 24px 0;
+      }
+
+      /* ── Pages ── */
+      .page { display: none; }
+      .page.active { display: block; }
+
+      /* ── Detail page ── */
+      .back-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: none;
+        border: none;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        color: #888;
+        cursor: pointer;
+        padding: 0;
+        margin-bottom: 20px;
+        letter-spacing: 0.04em;
+        transition: color 0.15s;
+        width: auto;
+      }
+      .back-btn:hover { color: #1a1a1a; }
+      .back-btn::before { content: '←'; font-size: 13px; }
+
+      .detail-header {
+        margin-bottom: 20px;
+      }
+
+      .detail-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 4px;
+      }
+
+      .detail-count {
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        color: #888;
+      }
+
+      /* ── Violation rows ── */
+      .vlist {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .vnode {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        background: #eceae7;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.12s;
+      }
+      .vnode:hover  { background: #e5e3e0; }
+      .vnode:active { background: #dddbd8; }
+
+      .vnode-icon { font-size: 11px; flex-shrink: 0; opacity: 0.4; }
+
+      .vnode-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      .vnode-name {
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        color: #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .vnode-details {
+        font-family: 'DM Mono', monospace;
+        font-size: 10px;
+        color: #888;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .vnode-arrow {
+        font-size: 9px;
+        color: #bbb;
+        flex-shrink: 0;
+        transition: color 0.12s, transform 0.12s;
+      }
+      .vnode:hover .vnode-arrow { color: #888; transform: translateX(2px); }
+
+      .empty-state {
+        padding: 24px 14px;
+        text-align: center;
+        font-size: 12px;
+        color: #1a9e2e;
+        font-family: 'DM Mono', monospace;
+        background: #eceae7;
+        border-radius: 8px;
       }
     </style>
   </head>
@@ -469,26 +468,42 @@
       <span class="dot"></span>
     </header>
 
-    <div class="mode-toggle">
-      <button class="mode-btn active" id="btn-frame" onclick="setMode('frame')">Single frame</button>
-      <button class="mode-btn"        id="btn-flow"  onclick="setMode('flow')">Entire flow</button>
+    <!-- ── PAGE: Main ── -->
+    <div id="page-main" class="page active">
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="btn-frame" onclick="setMode('frame')">Single frame</button>
+        <button class="mode-btn"        id="btn-flow"  onclick="setMode('flow')">Entire flow</button>
+      </div>
+
+      <div id="panel-frame">
+        <button class="primary" id="analyze">Analyze selection</button>
+      </div>
+
+      <div id="panel-flow" style="display:none">
+        <select id="flow-select">
+          <option value="">— select a frame to see flows —</option>
+        </select>
+        <button class="primary" id="analyze-flow">Analyze flow</button>
+      </div>
+
+      <div id="output" style="margin-top: 20px;"></div>
     </div>
 
-    <div id="panel-frame">
-      <button class="primary" id="analyze">Analyze selection</button>
+    <!-- ── PAGE: Detail ── -->
+    <div id="page-detail" class="page">
+      <button class="back-btn" onclick="goBack()">All metrics</button>
+      <div class="detail-header">
+        <div class="detail-title" id="detail-title"></div>
+        <div class="detail-count" id="detail-count"></div>
+      </div>
+      <div class="vlist" id="detail-list"></div>
     </div>
-
-    <div id="panel-flow" style="display:none">
-      <select id="flow-select">
-        <option value="">— select a frame to see flows —</option>
-      </select>
-      <button class="primary" id="analyze-flow">Analyze flow</button>
-    </div>
-
-    <div id="output" style="margin-top: 20px;"></div>
 
     <script>
       const output = document.getElementById('output');
+
+      // Store violation data globally so detail page can access it
+      let violationData = {};
 
       window.onload = () => {
         parent.postMessage({ pluginMessage: { type: 'ui-ready' } }, '*');
@@ -514,11 +529,48 @@
         parent.postMessage({ pluginMessage: { type: 'analyze-flow', nodeId } }, '*');
       };
 
+      // ── Navigation ──────────────────────────────────────────────────────────
+      function openDetail(key) {
+        const data = violationData[key];
+        if (!data) return;
+
+        document.getElementById('detail-title').textContent = data.title;
+        const count = data.nodes.length;
+        document.getElementById('detail-count').textContent =
+          count === 0 ? 'No violations found' : `${count} violation${count !== 1 ? 's' : ''}`;
+
+        const list = document.getElementById('detail-list');
+        if (count === 0) {
+          list.innerHTML = `<div class="empty-state">No violations ✓</div>`;
+        } else {
+          list.innerHTML = data.nodes.map(n => `
+            <div class="vnode" onclick="selectNode('${n.id}')">
+              <span class="vnode-icon">${data.icon}</span>
+              <div class="vnode-text">
+                <span class="vnode-name" title="${n.name}">${n.name}</span>
+                ${n.details ? `<span class="vnode-details">${n.details}</span>` : ''}
+              </div>
+              <span class="vnode-arrow">▶</span>
+            </div>`).join('');
+        }
+
+        document.getElementById('page-main').classList.remove('active');
+        document.getElementById('page-detail').classList.add('active');
+        window.scrollTo(0, 0);
+      }
+
+      function goBack() {
+        document.getElementById('page-detail').classList.remove('active');
+        document.getElementById('page-main').classList.add('active');
+      }
+
+      function selectNode(id) {
+        parent.postMessage({ pluginMessage: { type: 'select-node', id } }, '*');
+      }
+
+      // ── Helpers ─────────────────────────────────────────────────────────────
       function pct(val) { return (val * 100).toFixed(1) + '%'; }
 
-      // Scale thresholds upward for large frames so isolated counts
-      // aren't penalised on dense, complex screens.
-      // ≤200 nodes → 1×  |  ≤500 → 1.3×  |  ≤1000 → 1.7×  |  >1000 → 2.2×
       function nodeScaleFactor(n) {
         if (n <= 200)  return 1.0;
         if (n <= 500)  return 1.3;
@@ -533,49 +585,9 @@
         return 'ok';
       }
 
-      function renderTags(items, className = '') {
+      function renderTags(items) {
         if (!items || items.length === 0) return '';
-        return `<div class="tag-list">${items.map(t => `<span class="tag ${className}">${t}</span>`).join('')}</div>`;
-      }
-
-      function selectNode(id) {
-        parent.postMessage({ pluginMessage: { type: 'select-node', id } }, '*');
-      }
-
-      function renderViolationGroup(title, icon, nodes, groupId) {
-        const count    = nodes.length;
-        const cntClass = count === 0 ? 'ok' : count >= 5 ? 'danger' : '';
-        const rows = count === 0
-          ? `<div class="empty-state">No violations ✓</div>`
-          : nodes.map(n => `
-              <div class="vnode" onclick="selectNode('${n.id}')">
-                <span class="vnode-icon">${icon}</span>
-                <div class="vnode-text">
-                  <span class="vnode-name" title="${n.name}">${n.name}</span>
-                  ${n.details ? `<span class="vnode-details">${n.details}</span>` : ''}
-                </div>
-                <span class="vnode-arrow">▶</span>
-              </div>`).join('');
-
-        const idAttr = groupId ? ` id="${groupId}"` : '';
-        return `
-          <div class="vgroup"${idAttr}>
-            <div class="vgroup-header" onclick="this.closest('.vgroup').classList.toggle('open')">
-              <span class="vgroup-title">
-                ${title}
-                <span class="vgroup-count ${cntClass}">${count}</span>
-              </span>
-              <span class="vgroup-chevron">▼</span>
-            </div>
-            <div class="vgroup-body">${rows}</div>
-          </div>`;
-      }
-
-      function jumpToGroup(groupId) {
-        const el = document.getElementById(groupId);
-        if (!el) return;
-        el.classList.add('open');
-        setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+        return `<div class="tag-list">${items.map(t => `<span class="tag">${t}</span>`).join('')}</div>`;
       }
 
       // ── Feedback functions ───────────────────────────────────────────────────
@@ -681,10 +693,39 @@
             totalNodes, maxDepth, componentProportion, autoLayoutProportion,
             numberedNameCount, effectCount, groupCount, unusualSpacingCount,
             unusualSpacingValues, typefaceCount, typefaceNames,
-            accessibilityViolations, accessibilityDetails, totalStyles,
+            accessibilityViolations, totalStyles,
             accessibilityNodes, unlinkedStyleNodes, offGridNodes,
             numberedNameNodes, noAutoLayoutNodes,
           } = msg.data;
+
+          // Store violation data for detail pages
+          violationData = {
+            a11y: {
+              title: 'Accessibility violations',
+              icon: '⚠',
+              nodes: accessibilityNodes || [],
+            },
+            styles: {
+              title: 'Unlinked styles',
+              icon: '🎨',
+              nodes: unlinkedStyleNodes || [],
+            },
+            spacing: {
+              title: 'Off-grid spacing',
+              icon: '📐',
+              nodes: offGridNodes || [],
+            },
+            names: {
+              title: 'Numbered names',
+              icon: '#',
+              nodes: numberedNameNodes || [],
+            },
+            autolayout: {
+              title: 'No auto-layout',
+              icon: '⬜',
+              nodes: noAutoLayoutNodes || [],
+            },
+          };
 
           const spacingTags = (unusualSpacingValues || []).map(v => v + 'px');
           const banner = msg.mode === 'flow'
@@ -694,7 +735,7 @@
           output.innerHTML = `
             ${banner}
 
-            <!-- ══ QUICK-GLANCE: Build complexity ══ -->
+            <!-- ══ QUICK-GLANCE ══ -->
             <div class="quickglance" id="quickglance">
               <div class="qg-item">
                 <span class="qg-label">Elements</span>
@@ -714,7 +755,7 @@
               <div class="qg-item">
                 <span class="qg-label">Typefaces</span>
                 <span class="qg-value">${typefaceCount}</span>
-                <span class="qg-sub">${(typefaceNames || []).slice(0,2).join(', ')|| 'n/a'}</span>
+                <span class="qg-sub">${(typefaceNames || []).slice(0,2).join(', ') || 'n/a'}</span>
               </div>
             </div>
 
@@ -724,31 +765,31 @@
               <div class="section-title">Fix before handoff</div>
               <div class="section-desc">Issues you can resolve directly in Figma right now</div>
               <div class="grid">
-                <div class="metric" onclick="jumpToGroup('vgroup-numbered')">
+                <div class="metric clickable" onclick="openDetail('names')">
                   <span class="metric-label">Numbered names</span>
                   <span class="metric-value ${severity(numberedNameCount, 5, 12, totalNodes)}">${numberedNameCount}</span>
                   <span class="metric-sub">layers with auto-generated names</span>
                   ${fb(feedbackNumberedNames(numberedNameCount))}
                 </div>
-                <div class="metric">
+                <div class="metric clickable" onclick="openDetail('autolayout')">
                   <span class="metric-label">Groups</span>
                   <span class="metric-value ${severity(groupCount, 1, 6, totalNodes)}">${groupCount}</span>
                   <span class="metric-sub">replace with frames</span>
                   ${fb(feedbackGroups(groupCount))}
                 </div>
-                <div class="metric" onclick="jumpToGroup('vgroup-offgrid')">
+                <div class="metric clickable" onclick="openDetail('spacing')">
                   <span class="metric-label">Off-grid spacing</span>
                   <span class="metric-value ${severity(unusualSpacingCount, 4, 12, totalNodes)}">${unusualSpacingCount}</span>
                   ${renderTags(spacingTags.slice(0, 6))}
                   ${fb(feedbackSpacing(unusualSpacingCount))}
                 </div>
-                <div class="metric" onclick="jumpToGroup('vgroup-styles')">
+                <div class="metric clickable" onclick="openDetail('styles')">
                   <span class="metric-label">Unlinked styles</span>
                   <span class="metric-value ${severity(totalStyles, 3, 8, totalNodes)}">${totalStyles}</span>
                   <span class="metric-sub">no reusable style attached</span>
                   ${fb(feedbackStyles(totalStyles))}
                 </div>
-                <div class="metric wide" onclick="jumpToGroup('vgroup-a11y')">
+                <div class="metric wide clickable" onclick="openDetail('a11y')">
                   <span class="metric-label">Accessibility violations</span>
                   <span class="metric-value ${severity(accessibilityViolations, 1, 5, totalNodes)}">${accessibilityViolations}</span>
                   <span class="metric-sub">contrast + touch target issues</span>
@@ -779,22 +820,6 @@
                   <span class="metric-sub">of all frame-like nodes</span>
                   ${fb(feedbackAutoLayout(autoLayoutProportion))}
                 </div>
-              </div>
-            </div>
-
-            <div class="divider"></div>
-
-            <!-- ══ VIOLATION LISTS ══ -->
-            <div class="section-block">
-              <div class="section-label shared">For everyone</div>
-              <div class="section-title">Violations</div>
-              <div class="section-desc">Expand a category to jump directly to problem layers</div>
-              <div class="vlist-section">
-                ${renderViolationGroup('Accessibility',    '⚠',  accessibilityNodes  || [], 'vgroup-a11y')}
-                ${renderViolationGroup('Unlinked styles',  '🎨', unlinkedStyleNodes  || [], 'vgroup-styles')}
-                ${renderViolationGroup('Off-grid spacing', '📐', offGridNodes        || [], 'vgroup-offgrid')}
-                ${renderViolationGroup('Numbered names',   '#',  numberedNameNodes   || [], 'vgroup-numbered')}
-                ${renderViolationGroup('No auto-layout',   '⬜', noAutoLayoutNodes   || [], 'vgroup-noautolayout')}
               </div>
             </div>
           `;
