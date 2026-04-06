@@ -695,7 +695,7 @@
             unusualSpacingValues, typefaceCount, typefaceNames,
             accessibilityViolations, totalStyles,
             accessibilityNodes, unlinkedStyleNodes, offGridNodes,
-            numberedNameNodes, noAutoLayoutNodes,
+            numberedNameNodes, noAutoLayoutNodes, groupNodes,
           } = msg.data;
 
           // Store violation data for detail pages
@@ -720,8 +720,13 @@
               icon: '#',
               nodes: numberedNameNodes || [],
             },
+            groups: {
+              title: 'Groups',
+              icon: '▣',
+              nodes: groupNodes || [],
+            },
             autolayout: {
-              title: 'No auto-layout',
+              title: 'Frames without auto-layout',
               icon: '⬜',
               nodes: noAutoLayoutNodes || [],
             },
@@ -771,7 +776,7 @@
                   <span class="metric-sub">layers with auto-generated names</span>
                   ${fb(feedbackNumberedNames(numberedNameCount))}
                 </div>
-                <div class="metric clickable" onclick="openDetail('autolayout')">
+                <div class="metric clickable" onclick="openDetail('groups')">
                   <span class="metric-label">Groups</span>
                   <span class="metric-value ${severity(groupCount, 1, 6, totalNodes)}">${groupCount}</span>
                   <span class="metric-sub">replace with frames</span>
@@ -813,7 +818,7 @@
                   <span class="metric-sub">of all frame-like nodes</span>
                   ${fb(feedbackComponents(componentProportion))}
                 </div>
-                <div class="metric">
+                <div class="metric clickable" onclick="openDetail('autolayout')">
                   <span class="metric-label">Auto-layout</span>
                   <span class="metric-value">${pct(autoLayoutProportion)}</span>
                   <div class="bar-track"><div class="bar-fill" id="bar-auto"></div></div>
