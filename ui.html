@@ -129,7 +129,6 @@
         margin-bottom: 18px;
       }
 
-      /* ── Quick-glance bar ── */
       .quickglance {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -175,7 +174,6 @@
         margin-top: 1px;
       }
 
-      /* ── Section headings ── */
       .section-label {
         font-size: 9px;
         font-weight: 600;
@@ -187,7 +185,8 @@
         align-items: center;
         gap: 8px;
       }
-      .section-label.shared   { color: #888; }
+      .section-label.shared  { color: #888; }
+      .section-label.dev-col { color: #0e7fb5; }
       .section-label::after {
         content: '';
         flex: 1;
@@ -208,11 +207,8 @@
         margin-bottom: 14px;
       }
 
-      .section-block {
-        margin-bottom: 28px;
-      }
+      .section-block { margin-bottom: 28px; }
 
-      /* ── Metric grid ── */
       .grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -233,11 +229,7 @@
       }
       .metric.visible { opacity: 1; transform: translateY(0); }
 
-      /* Clickable card styles */
-      .metric.clickable {
-        cursor: pointer;
-        padding-right: 28px;
-      }
+      .metric.clickable { cursor: pointer; padding-right: 28px; }
       .metric.clickable::after {
         content: '▶';
         position: absolute;
@@ -248,23 +240,16 @@
         color: #bbb;
         transition: color 0.15s, transform 0.15s;
       }
-      .metric.clickable:hover {
-        background: #e5e3e0;
-        outline: 2px solid #dddbd8;
-        outline-offset: -2px;
-      }
-      .metric.clickable:hover::after {
-        color: #888;
-        transform: translateY(-50%) translateX(2px);
-      }
+      .metric.clickable:hover { background: #e5e3e0; outline: 2px solid #dddbd8; outline-offset: -2px; }
+      .metric.clickable:hover::after { color: #888; transform: translateY(-50%) translateX(2px); }
       .metric.clickable:active { background: #dddbd8; }
 
-      .metric:nth-child(1)  { transition-delay: 0.05s; }
-      .metric:nth-child(2)  { transition-delay: 0.10s; }
-      .metric:nth-child(3)  { transition-delay: 0.15s; }
-      .metric:nth-child(4)  { transition-delay: 0.20s; }
-      .metric:nth-child(5)  { transition-delay: 0.25s; }
-      .metric:nth-child(6)  { transition-delay: 0.30s; }
+      .metric:nth-child(1) { transition-delay: 0.05s; }
+      .metric:nth-child(2) { transition-delay: 0.10s; }
+      .metric:nth-child(3) { transition-delay: 0.15s; }
+      .metric:nth-child(4) { transition-delay: 0.20s; }
+      .metric:nth-child(5) { transition-delay: 0.25s; }
+      .metric:nth-child(6) { transition-delay: 0.30s; }
 
       .metric.wide { grid-column: 1 / -1; }
 
@@ -320,12 +305,7 @@
       .feedback.warn   { color: #c47d00; }
       .feedback.danger { color: #d63b3b; }
 
-      .tag-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px;
-        margin-top: 2px;
-      }
+      .tag-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
       .tag {
         font-family: 'DM Mono', monospace;
         font-size: 10px;
@@ -346,17 +326,11 @@
         line-height: 1.5;
       }
 
-      .divider {
-        height: 1px;
-        background: #dddbd8;
-        margin: 24px 0;
-      }
+      .divider { height: 1px; background: #dddbd8; margin: 24px 0; }
 
-      /* ── Pages ── */
       .page { display: none; }
       .page.active { display: block; }
 
-      /* ── Detail page ── */
       .back-btn {
         display: flex;
         align-items: center;
@@ -377,29 +351,11 @@
       .back-btn:hover { color: #1a1a1a; }
       .back-btn::before { content: '←'; font-size: 13px; }
 
-      .detail-header {
-        margin-bottom: 20px;
-      }
+      .detail-header { margin-bottom: 20px; }
+      .detail-title { font-size: 16px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+      .detail-count { font-family: 'DM Mono', monospace; font-size: 11px; color: #888; }
 
-      .detail-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: #1a1a1a;
-        margin-bottom: 4px;
-      }
-
-      .detail-count {
-        font-family: 'DM Mono', monospace;
-        font-size: 11px;
-        color: #888;
-      }
-
-      /* ── Violation rows ── */
-      .vlist {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-      }
+      .vlist { display: flex; flex-direction: column; gap: 2px; }
 
       .vnode {
         display: flex;
@@ -442,14 +398,6 @@
         text-overflow: ellipsis;
       }
 
-      .vnode-arrow {
-        font-size: 9px;
-        color: #bbb;
-        flex-shrink: 0;
-        transition: color 0.12s, transform 0.12s;
-      }
-      .vnode:hover .vnode-arrow { color: #888; transform: translateX(2px); }
-
       .empty-state {
         padding: 24px 14px;
         text-align: center;
@@ -459,16 +407,268 @@
         background: #eceae7;
         border-radius: 8px;
       }
+
+      .a11y-accordion {
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 8px;
+        border: 1px solid #dddbd8;
+      }
+
+      .a11y-accordion-trigger {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 13px 14px;
+        background: #eceae7;
+        border: none;
+        cursor: pointer;
+        font-family: 'DM Sans', sans-serif;
+        text-align: left;
+        transition: background 0.12s;
+        border-radius: 0;
+      }
+      .a11y-accordion-trigger:hover  { background: #e5e3e0; }
+      .a11y-accordion-trigger:active { background: #dddbd8; }
+
+      .a11y-accordion-title { font-size: 13px; font-weight: 600; color: #1a1a1a; flex: 1; }
+
+      .a11y-category-badge {
+        font-family: 'DM Mono', monospace;
+        font-size: 10px;
+        font-weight: 500;
+        padding: 2px 8px;
+        border-radius: 99px;
+        background: #e0deda;
+        color: #888;
+        flex-shrink: 0;
+      }
+      .a11y-category-badge.warn   { background: #fef3d7; color: #c47d00; }
+      .a11y-category-badge.danger { background: #fde8e8; color: #d63b3b; }
+      .a11y-category-badge.ok     { background: #e3f7e5; color: #1a9e2e; }
+
+      .a11y-chevron {
+        font-size: 10px;
+        color: #aaa;
+        flex-shrink: 0;
+        transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        display: inline-block;
+      }
+      .a11y-accordion.open .a11y-chevron { transform: rotate(180deg); }
+
+      .a11y-accordion-body {
+        display: none;
+        background: #f0eeeb;
+        border-top: 1px solid #dddbd8;
+      }
+      .a11y-accordion.open .a11y-accordion-body { display: block; }
+
+      .a11y-guidance {
+        padding: 12px 14px;
+        border-left: 3px solid #dddbd8;
+        margin: 12px 12px 0;
+        border-radius: 0 6px 6px 0;
+        background: #eceae7;
+      }
+      .a11y-guidance.warn   { border-left-color: #c47d00; }
+      .a11y-guidance.danger { border-left-color: #d63b3b; }
+      .a11y-guidance.ok     { border-left-color: #1a9e2e; }
+
+      .a11y-guidance-why { font-size: 11px; color: #555; line-height: 1.55; margin-bottom: 6px; }
+      .a11y-guidance-how { font-size: 11px; color: #888; line-height: 1.55; font-style: italic; }
+      .a11y-guidance-how strong { font-style: normal; font-weight: 600; color: #555; }
+
+      .a11y-vlist-wrap { padding: 10px 12px 12px; }
+
+      /* ── DEV ESTIMATION ── */
+
+      .dev-accordion {
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #c8e6f5;
+        opacity: 0;
+        transform: translateY(6px);
+        transition: opacity 0.3s ease 0.35s, transform 0.3s ease 0.35s;
+      }
+      .dev-accordion.visible { opacity: 1; transform: translateY(0); }
+
+      .dev-accordion-trigger {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 13px 14px;
+        background: #e8f4fb;
+        border: none;
+        cursor: pointer;
+        font-family: 'DM Sans', sans-serif;
+        text-align: left;
+        transition: background 0.12s;
+      }
+      .dev-accordion-trigger:hover  { background: #dceef7; }
+      .dev-accordion-trigger:active { background: #cde5f1; }
+
+      .dev-accordion-title { font-size: 13px; font-weight: 600; color: #0e5c80; flex: 1; }
+
+      .dev-tier-pill {
+        font-family: 'DM Mono', monospace;
+        font-size: 10px;
+        font-weight: 500;
+        padding: 2px 8px;
+        border-radius: 99px;
+        flex-shrink: 0;
+      }
+      .dev-tier-pill.green  { background: #e3f7e5; color: #1a9e2e; }
+      .dev-tier-pill.yellow { background: #fef3d7; color: #c47d00; }
+      .dev-tier-pill.red    { background: #fde8e8; color: #d63b3b; }
+
+      .dev-chevron {
+        font-size: 10px;
+        color: #6aaec8;
+        flex-shrink: 0;
+        transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        display: inline-block;
+      }
+      .dev-accordion.open .dev-chevron { transform: rotate(180deg); }
+
+      .dev-accordion-body {
+        display: none;
+        background: #f0f8fc;
+        border-top: 1px solid #c8e6f5;
+      }
+      .dev-accordion.open .dev-accordion-body { display: block; }
+
+      .dev-tier-badge {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 13px 14px;
+        border-radius: 8px;
+        margin: 14px 14px 0;
+      }
+      .dev-tier-badge.green  { background: #e3f7e5; border: 1px solid #b6e8bc; }
+      .dev-tier-badge.yellow { background: #fef3d7; border: 1px solid #f5dfa0; }
+      .dev-tier-badge.red    { background: #fde8e8; border: 1px solid #f5bfbf; }
+
+      .dev-tier-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+      .dev-tier-badge.green  .dev-tier-dot { background: #1a9e2e; }
+      .dev-tier-badge.yellow .dev-tier-dot { background: #c47d00; }
+      .dev-tier-badge.red    .dev-tier-dot { background: #d63b3b; }
+
+      .dev-tier-main { flex: 1; }
+      .dev-tier-name { font-size: 12px; font-weight: 600; }
+      .dev-tier-badge.green  .dev-tier-name { color: #1a9e2e; }
+      .dev-tier-badge.yellow .dev-tier-name { color: #c47d00; }
+      .dev-tier-badge.red    .dev-tier-name { color: #d63b3b; }
+
+      .dev-tier-range { font-family: 'DM Mono', monospace; font-size: 10px; margin-top: 2px; }
+      .dev-tier-badge.green  .dev-tier-range { color: #2db840; }
+      .dev-tier-badge.yellow .dev-tier-range { color: #d4890a; }
+      .dev-tier-badge.red    .dev-tier-range { color: #e04444; }
+
+      .dev-tier-pts { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 500; line-height: 1; }
+      .dev-tier-badge.green  .dev-tier-pts { color: #1a9e2e; }
+      .dev-tier-badge.yellow .dev-tier-pts { color: #c47d00; }
+      .dev-tier-badge.red    .dev-tier-pts { color: #d63b3b; }
+
+      .dev-factors { padding: 12px 14px 4px; display: flex; flex-direction: column; gap: 0; }
+
+      .dev-factor {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid #ddeef6;
+      }
+      .dev-factor:last-child { border-bottom: none; }
+
+      .dev-factor-icon { font-size: 11px; flex-shrink: 0; margin-top: 1px; width: 14px; opacity: 0.55; }
+
+      .dev-factor-body { flex: 1; min-width: 0; }
+      .dev-factor-name { font-size: 11px; font-weight: 600; color: #2a5a72; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .dev-factor-detail { font-size: 10px; font-family: 'DM Mono', monospace; color: #5a8da0; margin-top: 1px; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+      .dev-impact {
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 2px 6px;
+        border-radius: 4px;
+        flex-shrink: 0;
+        align-self: flex-start;
+        margin-top: 1px;
+      }
+      .dev-impact.low  { background: #fef3d7; color: #c47d00; }
+      .dev-impact.med  { background: #fde8e8; color: #d63b3b; }
+      .dev-impact.high { background: #fde8e8; color: #d63b3b; }
+      .dev-impact.neg  { background: #e3f7e5; color: #1a9e2e; }
+
+      .dev-ticket {
+        margin: 10px 14px 14px;
+        background: #e4f2f9;
+        border: 1px solid #c8e6f5;
+        border-radius: 8px;
+        padding: 11px 12px;
+        position: relative;
+      }
+
+      .dev-ticket-label {
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #5a8da0;
+        margin-bottom: 8px;
+      }
+
+      .dev-ticket-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        font-size: 11px;
+        color: #2a5a72;
+        line-height: 1.5;
+        padding: 2px 0;
+      }
+      .dev-ticket-item::before { content: '☐'; font-size: 11px; color: #7ab4cb; flex-shrink: 0; }
+
+      .dev-copy-btn {
+        position: absolute;
+        top: 9px;
+        right: 10px;
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #5a8da0;
+        background: #cde8f4;
+        border: none;
+        border-radius: 4px;
+        padding: 3px 8px;
+        cursor: pointer;
+        font-family: 'DM Sans', sans-serif;
+        transition: color 0.15s, background 0.15s;
+      }
+      .dev-copy-btn:hover { background: #b8ddef; color: #1a5570; }
+
+      .dev-disclaimer {
+        font-size: 10px;
+        color: #7aafca;
+        font-family: 'DM Mono', monospace;
+        padding: 0 14px 12px;
+        line-height: 1.4;
+      }
     </style>
   </head>
 
   <body>
     <header>
-      <h1>Frame Inspector</h1>
+      <h1>FrameSense</h1>
       <span class="dot"></span>
     </header>
 
-    <!-- ── PAGE: Main ── -->
     <div id="page-main" class="page active">
       <div class="mode-toggle">
         <button class="mode-btn active" id="btn-frame" onclick="setMode('frame')">Single frame</button>
@@ -489,20 +689,17 @@
       <div id="output" style="margin-top: 20px;"></div>
     </div>
 
-    <!-- ── PAGE: Detail ── -->
     <div id="page-detail" class="page">
       <button class="back-btn" onclick="goBack()">All metrics</button>
       <div class="detail-header">
         <div class="detail-title" id="detail-title"></div>
         <div class="detail-count" id="detail-count"></div>
       </div>
-      <div class="vlist" id="detail-list"></div>
+      <div id="detail-list"></div>
     </div>
 
     <script>
       const output = document.getElementById('output');
-
-      // Store violation data globally so detail page can access it
       let violationData = {};
 
       window.onload = () => {
@@ -529,34 +726,97 @@
         parent.postMessage({ pluginMessage: { type: 'analyze-flow', nodeId } }, '*');
       };
 
-      // ── Navigation ──────────────────────────────────────────────────────────
       function openDetail(key) {
         const data = violationData[key];
         if (!data) return;
-
         document.getElementById('detail-title').textContent = data.title;
-        const count = data.nodes.length;
-        document.getElementById('detail-count').textContent =
-          count === 0 ? 'No violations found' : `${count} violation${count !== 1 ? 's' : ''}`;
-
         const list = document.getElementById('detail-list');
-        if (count === 0) {
-          list.innerHTML = `<div class="empty-state">No violations ✓</div>`;
+        if (key === 'a11y') {
+          const touchNodes    = (data.nodes || []).filter(n => n.violationType === 'touch');
+          const contrastNodes = (data.nodes || []).filter(n => n.violationType === 'contrast');
+          const totalCount    = touchNodes.length + contrastNodes.length;
+          document.getElementById('detail-count').textContent =
+            totalCount === 0 ? 'No violations found' : `${totalCount} violation${totalCount !== 1 ? 's' : ''}`;
+          list.innerHTML = totalCount === 0
+            ? `<div class="empty-state">No accessibility violations ✓</div>`
+            : renderA11yCategories(touchNodes, contrastNodes);
         } else {
-          list.innerHTML = data.nodes.map(n => `
-            <div class="vnode" onclick="selectNode('${n.id}')">
-              <span class="vnode-icon">${data.icon}</span>
-              <div class="vnode-text">
-                <span class="vnode-name" title="${n.name}">${n.name}</span>
-                ${n.details ? `<span class="vnode-details">${n.details}</span>` : ''}
-              </div>
-              <span class="vnode-arrow">▶</span>
-            </div>`).join('');
+          const count = (data.nodes || []).length;
+          document.getElementById('detail-count').textContent =
+            count === 0 ? 'No violations found' : `${count} violation${count !== 1 ? 's' : ''}`;
+          list.innerHTML = count === 0
+            ? `<div class="empty-state">No violations ✓</div>`
+            : `<div class="vlist">${data.nodes.map(n => vnodeHTML(n, data.icon)).join('')}</div>`;
         }
-
         document.getElementById('page-main').classList.remove('active');
         document.getElementById('page-detail').classList.add('active');
         window.scrollTo(0, 0);
+      }
+
+      function vnodeHTML(n, icon) {
+        return `
+          <div class="vnode" onclick="selectNode('${n.id}')">
+            <span class="vnode-icon">${icon}</span>
+            <div class="vnode-text">
+              <span class="vnode-name" title="${n.name}">${n.name}</span>
+              ${n.details ? `<span class="vnode-details">${n.details}</span>` : ''}
+            </div>
+          </div>`;
+      }
+
+      function badgeClass(count) {
+        if (count === 0) return 'ok';
+        if (count <= 3)  return 'warn';
+        return 'danger';
+      }
+
+      function toggleA11yAccordion(id) {
+        document.getElementById(id).classList.toggle('open');
+      }
+
+      function renderA11yCategories(touchNodes, contrastNodes) {
+        const touchCls    = badgeClass(touchNodes.length);
+        const contrastCls = badgeClass(contrastNodes.length);
+        const touchBadge    = touchNodes.length === 0    ? 'All clear' : `${touchNodes.length} violation${touchNodes.length !== 1 ? 's' : ''}`;
+        const contrastBadge = contrastNodes.length === 0 ? 'All clear' : `${contrastNodes.length} violation${contrastNodes.length !== 1 ? 's' : ''}`;
+
+        return `
+          <div class="a11y-accordion" id="acc-touch">
+            <button class="a11y-accordion-trigger" onclick="toggleA11yAccordion('acc-touch')">
+              <span class="a11y-accordion-title">Touch target size</span>
+              <span class="a11y-category-badge ${touchCls}">${touchBadge}</span>
+              <span class="a11y-chevron">▼</span>
+            </button>
+            <div class="a11y-accordion-body">
+              <div class="a11y-guidance ${touchNodes.length === 0 ? 'ok' : touchCls}">
+                <p class="a11y-guidance-why">Interactive elements smaller than 44×44px are difficult or impossible to tap accurately for users with motor impairments or larger fingers. This can make key actions completely inaccessible on mobile devices, violating WCAG 2.5.5 (Target Size).</p>
+                <p class="a11y-guidance-how"><strong>How to fix:</strong> Resize the element itself, or add invisible padding inside a wrapper frame. In Figma, wrap the element in an auto-layout frame and set a minimum width and height of 44px. The visual size can stay the same — only the tappable area needs to grow.</p>
+              </div>
+              <div class="a11y-vlist-wrap">
+                ${touchNodes.length === 0
+                  ? `<div class="empty-state">All touch targets meet the 44×44px minimum ✓</div>`
+                  : `<div class="vlist">${touchNodes.map(n => vnodeHTML(n, '⌖')).join('')}</div>`}
+              </div>
+            </div>
+          </div>
+          <div class="a11y-accordion" id="acc-contrast">
+            <button class="a11y-accordion-trigger" onclick="toggleA11yAccordion('acc-contrast')">
+              <span class="a11y-accordion-title">Color contrast</span>
+              <span class="a11y-category-badge ${contrastNodes.length === 0 ? 'ok' : contrastCls}">${contrastBadge}</span>
+              <span class="a11y-chevron">▼</span>
+            </button>
+            <div class="a11y-accordion-body">
+              <div class="a11y-guidance ${contrastNodes.length === 0 ? 'ok' : contrastCls}">
+                <p class="a11y-guidance-why">Low contrast between text and its background makes content unreadable for users with low vision or color blindness. WCAG 1.4.3 requires a minimum contrast ratio of 4.5:1 for normal text and 3:1 for large text (18px+ or bold 14px+).</p>
+                <p class="a11y-guidance-how"><strong>How to fix:</strong> Darken the text color or lighten the background (or both) until the contrast ratio meets the required threshold. Use Figma's built-in contrast checker under the Accessibility panel, or paste the hex values into an online contrast checker to verify before updating your color styles.</p>
+              </div>
+              <div class="a11y-vlist-wrap">
+                ${contrastNodes.length === 0
+                  ? `<div class="empty-state">All text contrast ratios pass ✓</div>`
+                  : `<div class="vlist">${contrastNodes.map(n => vnodeHTML(n, '◐')).join('')}</div>`}
+              </div>
+            </div>
+          </div>`;
       }
 
       function goBack() {
@@ -568,7 +828,6 @@
         parent.postMessage({ pluginMessage: { type: 'select-node', id } }, '*');
       }
 
-      // ── Helpers ─────────────────────────────────────────────────────────────
       function pct(val) { return (val * 100).toFixed(1) + '%'; }
 
       function nodeScaleFactor(n) {
@@ -590,18 +849,6 @@
         return `<div class="tag-list">${items.map(t => `<span class="tag">${t}</span>`).join('')}</div>`;
       }
 
-      // ── Feedback functions ───────────────────────────────────────────────────
-      function feedbackNodes(val) {
-        if (val <= 200) return { cls: 'ok',     msg: 'Node count is manageable — should be straightforward to build.' };
-        if (val <= 500) return { cls: 'warn',   msg: 'Fairly large frame. Consider breaking it into smaller components.' };
-        return           { cls: 'danger', msg: 'Very high node count. High build complexity — strongly consider componentizing.' };
-      }
-      function feedbackDepth(val) {
-        if (val <= 5)  return { cls: 'ok',     msg: 'Shallow nesting — easy to implement and maintain.' };
-        if (val <= 8)  return { cls: 'ok',     msg: 'Reasonable depth — manageable for most developers.' };
-        if (val <= 14) return { cls: 'warn',   msg: 'Getting deep. Consider flattening layers or splitting into components.' };
-        return           { cls: 'danger', msg: 'Very deep nesting. High risk of brittle, hard-to-maintain code.' };
-      }
       function feedbackComponents(val) {
         const p = val * 100;
         if (p >= 70) return { cls: 'ok',     msg: 'Great component usage — expect a reusable, consistent codebase.' };
@@ -618,17 +865,6 @@
         if (val === 0) return { cls: 'ok',     msg: 'All layers are meaningfully named — easy for developers to navigate.' };
         if (val <= 5)  return { cls: 'warn',   msg: 'A few auto-generated layer names. Renaming them will help the handoff.' };
         return           { cls: 'danger', msg: 'Many unnamed layers. Rename them so developers can understand the structure.' };
-      }
-      function feedbackTypefaces(val) {
-        if (val <= 2) return { cls: 'ok',     msg: 'Minimal typefaces — easy to set up a clean typography system.' };
-        if (val <= 4) return { cls: 'warn',   msg: 'Several fonts in use. Make sure each has a clear role in the type scale.' };
-        return          { cls: 'danger', msg: 'Too many typefaces. Consolidate to 2–3 max to keep the design system manageable.' };
-      }
-      function feedbackEffects(val) {
-        if (val === 0) return { cls: 'ok',     msg: 'No effects — clean and easy to implement.' };
-        if (val <= 5)  return { cls: 'ok',     msg: 'Light effect use — should be straightforward to replicate in CSS.' };
-        if (val <= 15) return { cls: 'warn',   msg: 'Moderate effects. Each shadow or blur needs a corresponding CSS rule.' };
-        return           { cls: 'danger', msg: 'Heavy effect use. May cause performance issues and complex CSS.' };
       }
       function feedbackGroups(val) {
         if (val === 0) return { cls: 'ok',     msg: 'No groups — clean frame-based structure, great for code generation.' };
@@ -655,7 +891,224 @@
         return `<p class="feedback ${obj.cls}">${obj.msg}</p>`;
       }
 
-      // ── Message handler ──────────────────────────────────────────────────────
+      // ── DEV ESTIMATION ENGINE ────────────────────────────────────────────────
+
+      function computeDevEstimation(data) {
+        const {
+          totalNodes, autoLayoutProportion, componentProportion,
+          groupCount, unusualSpacingCount, unusualSpacingValues,
+          totalStyles, accessibilityViolations, typefaceCount,
+          typefaceNames, maxDepth, effectCount, numberedNameCount,
+        } = data;
+
+        const scale = nodeScaleFactor(totalNodes);
+        let score = 0;
+        const factors = [];
+
+        const alPct = Math.round(autoLayoutProportion * 100);
+        if (alPct >= 70) {
+          score -= 5;
+          factors.push({ icon: '⬜', name: `Auto-layout coverage: ${alPct}%`, detail: 'High coverage → flexbox/grid maps cleanly from Figma', impact: 'neg', impactLabel: 'saves' });
+        } else if (alPct >= 40) {
+          score += 10;
+          factors.push({ icon: '⬜', name: `Auto-layout coverage: ${alPct}%`, detail: 'Some frames lack layout rules — manual CSS spacing needed', impact: 'med', impactLabel: '+med' });
+        } else {
+          score += 25 * (scale * 0.6);
+          factors.push({ icon: '⬜', name: `Auto-layout coverage: ${alPct}%`, detail: 'Low coverage — positions and sizes will need to be hardcoded', impact: 'high', impactLabel: '+high' });
+        }
+
+        const compPct = Math.round(componentProportion * 100);
+        if (compPct >= 70) {
+          score -= 10;
+          factors.push({ icon: '◈', name: `Component reuse: ${compPct}%`, detail: 'High reuse → fewer one-off elements to build', impact: 'neg', impactLabel: 'saves' });
+        } else if (compPct >= 40) {
+          score += 5;
+          factors.push({ icon: '◈', name: `Component reuse: ${compPct}%`, detail: 'Moderate reuse — some one-off elements expected', impact: 'low', impactLabel: '+low' });
+        } else {
+          score += 18 * (scale * 0.5);
+          factors.push({ icon: '◈', name: `Component reuse: ${compPct}%`, detail: 'Low reuse — most elements may need to be built from scratch', impact: 'high', impactLabel: '+high' });
+        }
+
+        if (groupCount === 0) {
+          factors.push({ icon: '▣', name: 'No groups', detail: 'All frames — layout intent is clear', impact: 'neg', impactLabel: 'saves' });
+        } else if (groupCount <= 3) {
+          score += 8;
+          factors.push({ icon: '▣', name: `${groupCount} group${groupCount !== 1 ? 's' : ''}`, detail: 'Groups carry no layout info — dev must interpret structure', impact: 'low', impactLabel: '+low' });
+        } else {
+          score += Math.min(30, groupCount * 3) * (scale * 0.5);
+          factors.push({ icon: '▣', name: `${groupCount} groups`, detail: 'Many groups — significant layout ambiguity for developers', impact: 'high', impactLabel: '+high' });
+        }
+
+        if (unusualSpacingCount === 0) {
+          score -= 3;
+          factors.push({ icon: '📐', name: 'All spacing on-grid', detail: 'Token-ready — spacing maps to a consistent scale', impact: 'neg', impactLabel: 'saves' });
+        } else if (unusualSpacingCount <= 3) {
+          score += 8;
+          const vals = (unusualSpacingValues || []).slice(0, 4).map(v => v + 'px').join(' · ');
+          factors.push({ icon: '📐', name: `${unusualSpacingCount} off-grid value${unusualSpacingCount !== 1 ? 's' : ''}`, detail: `Values: ${vals || '—'} — confirm intentional or snap to grid`, impact: 'low', impactLabel: '+low' });
+        } else {
+          score += Math.min(28, unusualSpacingCount * 2.5) * (scale * 0.4);
+          const vals = (unusualSpacingValues || []).slice(0, 5).map(v => v + 'px').join(' · ');
+          factors.push({ icon: '📐', name: `${unusualSpacingCount} off-grid values`, detail: `Values: ${vals || '—'} — likely to cause inconsistency in code`, impact: 'high', impactLabel: '+high' });
+        }
+
+        if (totalStyles === 0) {
+          score -= 5;
+          factors.push({ icon: '🎨', name: 'All styles linked', detail: 'Token-ready — colors and text styles map to variables', impact: 'neg', impactLabel: 'saves' });
+        } else if (totalStyles <= 5) {
+          score += 8;
+          factors.push({ icon: '🎨', name: `${totalStyles} unlinked style${totalStyles !== 1 ? 's' : ''}`, detail: 'Dev must hardcode some values — no token reference', impact: 'med', impactLabel: '+med' });
+        } else {
+          score += Math.min(25, totalStyles * 2) * (scale * 0.4);
+          factors.push({ icon: '🎨', name: `${totalStyles} unlinked styles`, detail: 'Many hardcoded values — theming and maintenance cost rises', impact: 'high', impactLabel: '+high' });
+        }
+
+        if (accessibilityViolations === 0) {
+          factors.push({ icon: '⌖', name: 'No accessibility violations', detail: 'No remediation work expected post-build', impact: 'neg', impactLabel: 'saves' });
+        } else if (accessibilityViolations <= 3) {
+          score += 6;
+          factors.push({ icon: '⌖', name: `${accessibilityViolations} a11y violation${accessibilityViolations !== 1 ? 's' : ''}`, detail: 'Minor remediation needed — contrast or touch target fixes', impact: 'low', impactLabel: '+low' });
+        } else {
+          score += Math.min(20, accessibilityViolations * 3);
+          factors.push({ icon: '⌖', name: `${accessibilityViolations} a11y violations`, detail: 'Remediation work likely needed post-build (WCAG compliance)', impact: 'med', impactLabel: '+med' });
+        }
+
+        if (typefaceCount <= 1) {
+          factors.push({ icon: '🔤', name: `${typefaceCount === 0 ? 'No' : '1'} typeface`, detail: 'Minimal font load — no FOUT risk', impact: 'neg', impactLabel: 'saves' });
+        } else if (typefaceCount === 2) {
+          score += 4;
+          const names = (typefaceNames || []).join(', ');
+          factors.push({ icon: '🔤', name: `2 typefaces: ${names}`, detail: 'Standard — two font loads to manage', impact: 'low', impactLabel: '+low' });
+        } else {
+          score += (typefaceCount - 2) * 6;
+          const names = (typefaceNames || []).slice(0, 3).join(', ') + (typefaceCount > 3 ? '…' : '');
+          factors.push({ icon: '🔤', name: `${typefaceCount} typefaces: ${names}`, detail: 'Multiple font loads — FOUT risk, perf impact to evaluate', impact: 'med', impactLabel: '+med' });
+        }
+
+        if (maxDepth >= 12) {
+          score += 12;
+          factors.push({ icon: '⏷', name: `Max nesting depth: ${maxDepth}`, detail: 'Deep hierarchy — selector specificity and debugging complexity rises', impact: 'med', impactLabel: '+med' });
+        } else if (maxDepth >= 8) {
+          score += 5;
+          factors.push({ icon: '⏷', name: `Max nesting depth: ${maxDepth}`, detail: 'Moderate depth — manageable but worth monitoring', impact: 'low', impactLabel: '+low' });
+        } else {
+          factors.push({ icon: '⏷', name: `Max nesting depth: ${maxDepth}`, detail: 'Shallow hierarchy — clean DOM expected', impact: 'neg', impactLabel: 'saves' });
+        }
+
+        if (effectCount > 10) {
+          score += Math.min(15, effectCount);
+          factors.push({ icon: '✦', name: `${effectCount} effects (shadows/blurs)`, detail: 'Many effects — GPU compositing budget and perf to consider', impact: 'med', impactLabel: '+med' });
+        } else if (effectCount > 0) {
+          score += 3;
+          factors.push({ icon: '✦', name: `${effectCount} effect${effectCount !== 1 ? 's' : ''}`, detail: 'Standard shadow/blur count — no major perf concern', impact: 'low', impactLabel: '+low' });
+        }
+
+        if (numberedNameCount > 10) {
+          score += 8;
+          factors.push({ icon: '#', name: `${numberedNameCount} auto-named layers`, detail: 'Many unnamed layers — developers will struggle to navigate', impact: 'med', impactLabel: '+med' });
+        } else if (numberedNameCount > 0) {
+          score += 3;
+          factors.push({ icon: '#', name: `${numberedNameCount} auto-named layer${numberedNameCount !== 1 ? 's' : ''}`, detail: 'A few unnamed layers — minor handoff friction', impact: 'low', impactLabel: '+low' });
+        }
+
+        score = Math.max(0, Math.round(score));
+
+        let tier, tierClass, dayRange, storyPoints;
+        if (score < 30) {
+          tier = 'Low complexity'; tierClass = 'green'; dayRange = '1–2 dev days'; storyPoints = '2–5 pts';
+        } else if (score < 65) {
+          tier = 'Medium complexity'; tierClass = 'yellow'; dayRange = '3–5 dev days'; storyPoints = '5–13 pts';
+        } else {
+          tier = 'High complexity'; tierClass = 'red'; dayRange = '1–2 weeks'; storyPoints = '13–21 pts';
+        }
+
+        const ticketItems = [];
+        if (groupCount > 0)
+          ticketItems.push(`${groupCount} group${groupCount !== 1 ? 's' : ''} present — ask designer to convert to frames before build starts`);
+        if (unusualSpacingCount > 0) {
+          const vals = (unusualSpacingValues || []).slice(0, 4).map(v => v + 'px').join(', ');
+          ticketItems.push(`Off-grid spacing values (${vals || '—'}) — confirm intentional or request snap to 8pt grid`);
+        }
+        if (totalStyles > 0)
+          ticketItems.push(`${totalStyles} unlinked style${totalStyles !== 1 ? 's' : ''} — request design token mapping before coding colors and sizes`);
+        if (accessibilityViolations > 0)
+          ticketItems.push(`${accessibilityViolations} a11y violation${accessibilityViolations !== 1 ? 's' : ''} (contrast / touch targets) — must fix pre-launch for WCAG compliance`);
+        if (typefaceCount >= 3)
+          ticketItems.push(`${typefaceCount} typefaces in use — evaluate performance impact and confirm font fallback strategy`);
+        if (alPct < 50)
+          ticketItems.push(`Auto-layout coverage is ${alPct}% — expect manual spacing logic; flag areas with fixed positions early`);
+        if (maxDepth >= 12)
+          ticketItems.push(`Max nesting depth is ${maxDepth} — watch for CSS specificity issues; consider flattening deep structures`);
+        if (effectCount > 10)
+          ticketItems.push(`${effectCount} effects (shadows/blurs) — review GPU compositing budget on lower-end devices`);
+        if (compPct < 40)
+          ticketItems.push(`Component reuse is ${compPct}% — many one-off elements; align on shared component library before build`);
+        if (ticketItems.length === 0)
+          ticketItems.push('Design is clean and well-structured — no blockers identified before build.');
+
+        return { tier, tierClass, dayRange, storyPoints, factors, score, ticketItems };
+      }
+
+      function renderDevSection(est) {
+        const { tier, tierClass, dayRange, storyPoints, factors, ticketItems } = est;
+
+        const factorRows = factors.map(f => `
+          <div class="dev-factor">
+            <span class="dev-factor-icon">${f.icon}</span>
+            <div class="dev-factor-body">
+              <div class="dev-factor-name">${f.name}</div>
+              <div class="dev-factor-detail">${f.detail}</div>
+            </div>
+            <span class="dev-impact ${f.impact}">${f.impactLabel}</span>
+          </div>`).join('');
+
+        const ticketRows = ticketItems.map(t =>
+          `<div class="dev-ticket-item">${t}</div>`).join('');
+
+        return `
+          <div class="dev-accordion" id="dev-accordion">
+            <button class="dev-accordion-trigger" onclick="toggleDevAccordion()">
+              <span class="dev-accordion-title">Dev estimation</span>
+              <span class="dev-tier-pill ${tierClass}">${tier}</span>
+              <span class="dev-chevron">▼</span>
+            </button>
+            <div class="dev-accordion-body" id="dev-body">
+              <div class="dev-tier-badge ${tierClass}">
+                <span class="dev-tier-dot"></span>
+                <div class="dev-tier-main">
+                  <div class="dev-tier-name">${tier}</div>
+                  <div class="dev-tier-range">${dayRange} · ${storyPoints}</div>
+                </div>
+                <span class="dev-tier-pts">${storyPoints.split('–')[0].trim()}<span style="font-size:13px;opacity:0.6">pt</span></span>
+              </div>
+              <div class="dev-factors">${factorRows}</div>
+              <div class="dev-ticket" id="dev-ticket">
+                <button class="dev-copy-btn" onclick="copyDevTicket()">Copy</button>
+                <div class="dev-ticket-label">Handoff notes for ticket</div>
+                ${ticketRows}
+              </div>
+              <div class="dev-disclaimer">
+                Estimates assume one experienced frontend developer. Actual time varies with team, stack, and scope.
+              </div>
+            </div>
+          </div>`;
+      }
+
+      function toggleDevAccordion() {
+        const acc = document.getElementById('dev-accordion');
+        if (acc) acc.classList.toggle('open');
+      }
+
+      function copyDevTicket() {
+        const items = document.querySelectorAll('#dev-ticket .dev-ticket-item');
+        const text  = Array.from(items).map(i => '☐ ' + i.textContent.trim()).join('\n');
+        navigator.clipboard.writeText(text).catch(() => {});
+        const btn = document.querySelector('.dev-copy-btn');
+        if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy'; }, 1500); }
+      }
+
+      // ── MESSAGE HANDLER ──────────────────────────────────────────────────────
+
       onmessage = (event) => {
         const msg = event.data.pluginMessage;
         if (!msg) return;
@@ -665,18 +1118,15 @@
           select.innerHTML = '';
           if (!msg.flows || msg.flows.length === 0) {
             const opt = document.createElement('option');
-            opt.value = '';
-            opt.textContent = 'No flows found for this selection';
+            opt.value = ''; opt.textContent = 'No flows found for this selection';
             select.appendChild(opt);
           } else {
             const placeholder = document.createElement('option');
-            placeholder.value = '';
-            placeholder.textContent = '— select a flow —';
+            placeholder.value = ''; placeholder.textContent = '— select a flow —';
             select.appendChild(placeholder);
             msg.flows.forEach(f => {
               const opt = document.createElement('option');
-              opt.value = f.nodeId;
-              opt.textContent = f.name;
+              opt.value = f.nodeId; opt.textContent = f.name;
               select.appendChild(opt);
             });
           }
@@ -693,78 +1143,54 @@
             totalNodes, maxDepth, componentProportion, autoLayoutProportion,
             numberedNameCount, effectCount, groupCount, unusualSpacingCount,
             unusualSpacingValues, typefaceCount, typefaceNames,
-            accessibilityViolations, totalStyles,
+            accessibilityViolations, accessibilityDetails, totalStyles,
             accessibilityNodes, unlinkedStyleNodes, offGridNodes,
             numberedNameNodes, noAutoLayoutNodes, groupNodes,
           } = msg.data;
 
-          // Store violation data for detail pages
+          const touchNames = new Set(), contrastNames = new Set();
+          (accessibilityDetails || []).forEach(d => {
+            if (d.startsWith('Touch target')) { const m = d.match(/"([^"]+)"/); if (m) touchNames.add(m[1]); }
+            else if (d.startsWith('Low contrast')) { const m = d.match(/"([^"]+)"/); if (m) contrastNames.add(m[1]); }
+          });
+
+          const a11yAnnotated = (accessibilityNodes || []).map(n => {
+            const isContrast = contrastNames.has(n.name);
+            let details = n.details;
+            if (!details) {
+              const detail = (accessibilityDetails || []).find(d => d.includes(`"${n.name}"`));
+              if (detail) {
+                if (detail.startsWith('Touch target')) { const m = detail.match(/\((\d+×\d+px)\)/); details = m ? m[1] : undefined; }
+                else if (detail.startsWith('Low contrast')) { const m = detail.match(/ratio ([\d.]+:1)/); details = m ? `Contrast ratio: ${m[1]}` : undefined; }
+              }
+            }
+            return { ...n, details, violationType: isContrast ? 'contrast' : 'touch' };
+          });
+
           violationData = {
-            a11y: {
-              title: 'Accessibility violations',
-              icon: '⚠',
-              nodes: accessibilityNodes || [],
-            },
-            styles: {
-              title: 'Unlinked styles',
-              icon: '🎨',
-              nodes: unlinkedStyleNodes || [],
-            },
-            spacing: {
-              title: 'Off-grid spacing',
-              icon: '📐',
-              nodes: offGridNodes || [],
-            },
-            names: {
-              title: 'Numbered names',
-              icon: '#',
-              nodes: numberedNameNodes || [],
-            },
-            groups: {
-              title: 'Groups',
-              icon: '▣',
-              nodes: groupNodes || [],
-            },
-            autolayout: {
-              title: 'Frames without auto-layout',
-              icon: '⬜',
-              nodes: noAutoLayoutNodes || [],
-            },
+            a11y:       { title: 'Accessibility violations',   icon: '⚠',  nodes: a11yAnnotated },
+            styles:     { title: 'Unlinked styles',            icon: '🎨', nodes: unlinkedStyleNodes || [] },
+            spacing:    { title: 'Off-grid spacing',           icon: '📐', nodes: offGridNodes || [] },
+            names:      { title: 'Numbered names',             icon: '#',  nodes: numberedNameNodes || [] },
+            groups:     { title: 'Groups',                     icon: '▣',  nodes: groupNodes || [] },
+            autolayout: { title: 'Frames without auto-layout', icon: '⬜', nodes: noAutoLayoutNodes || [] },
           };
 
           const spacingTags = (unusualSpacingValues || []).map(v => v + 'px');
           const banner = msg.mode === 'flow'
-            ? `<p class="flow-banner">${msg.frameCount} frames analyzed across flow</p>`
-            : '';
+            ? `<p class="flow-banner">${msg.frameCount} frames analyzed across flow</p>` : '';
+
+          const devEst = computeDevEstimation(msg.data);
 
           output.innerHTML = `
             ${banner}
-
-            <!-- ══ QUICK-GLANCE ══ -->
             <div class="quickglance" id="quickglance">
-              <div class="qg-item">
-                <span class="qg-label">Elements</span>
-                <span class="qg-value">${totalNodes}</span>
-                <span class="qg-sub">total nodes</span>
-              </div>
-              <div class="qg-item">
-                <span class="qg-label">Max depth</span>
-                <span class="qg-value">${maxDepth}</span>
-                <span class="qg-sub">nesting levels</span>
-              </div>
-              <div class="qg-item">
-                <span class="qg-label">Effects</span>
-                <span class="qg-value">${effectCount}</span>
-                <span class="qg-sub">shadows / blurs</span>
-              </div>
-              <div class="qg-item">
-                <span class="qg-label">Typefaces</span>
-                <span class="qg-value">${typefaceCount}</span>
-                <span class="qg-sub">${(typefaceNames || []).slice(0,2).join(', ') || 'n/a'}</span>
-              </div>
+              <div class="qg-item"><span class="qg-label">Elements</span><span class="qg-value">${totalNodes}</span><span class="qg-sub">total nodes</span></div>
+              <div class="qg-item"><span class="qg-label">Max depth</span><span class="qg-value">${maxDepth}</span><span class="qg-sub">nesting levels</span></div>
+              <div class="qg-item"><span class="qg-label">Effects</span><span class="qg-value">${effectCount}</span><span class="qg-sub">shadows / blurs</span></div>
+              <div class="qg-item"><span class="qg-label">Typefaces</span><span class="qg-value">${typefaceCount}</span><span class="qg-sub">${(typefaceNames || []).slice(0,2).join(', ') || 'n/a'}</span></div>
             </div>
 
-            <!-- ══ SECTION 1: FOR DESIGNERS ══ -->
             <div class="section-block">
               <div class="section-label">For designers</div>
               <div class="section-title">Fix before handoff</div>
@@ -805,7 +1231,6 @@
 
             <div class="divider"></div>
 
-            <!-- ══ SECTION 2: DESIGN QUALITY ══ -->
             <div class="section-block">
               <div class="section-label shared">For everyone</div>
               <div class="section-title">Design quality</div>
@@ -827,13 +1252,23 @@
                 </div>
               </div>
             </div>
-          `;
+
+            <div class="divider"></div>
+
+            <div class="section-block">
+              <div class="section-label dev-col">For developers</div>
+              <div class="section-title">Build estimation</div>
+              <div class="section-desc">Rough complexity and planning notes based on the design's structure</div>
+              ${renderDevSection(devEst)}
+            </div>`;
 
           requestAnimationFrame(() => {
             document.getElementById('quickglance').classList.add('visible');
             document.querySelectorAll('.metric').forEach(el => el.classList.add('visible'));
             document.getElementById('bar-comp').style.width = pct(componentProportion);
             document.getElementById('bar-auto').style.width = pct(autoLayoutProportion);
+            const devAcc = document.getElementById('dev-accordion');
+            if (devAcc) setTimeout(() => devAcc.classList.add('visible'), 50);
           });
         }
       };
