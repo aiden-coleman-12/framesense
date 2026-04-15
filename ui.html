@@ -46,7 +46,7 @@
       .mode-toggle {
         display: flex;
         gap: 0;
-        margin-bottom: 20px;
+        margin-bottom: 14px;
         border-bottom: 2px solid #dddbd8;
       }
 
@@ -74,6 +74,40 @@
         border-bottom-color: #1a1a1a;
       }
 
+      /* ── Selection status chip ── */
+      .selection-status {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        min-height: 30px;
+        margin-bottom: 12px;
+        padding: 0 2px;
+      }
+
+      .selection-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        transition: background 0.2s;
+      }
+      .selection-dot.none    { background: #ccc; }
+      .selection-dot.ready   { background: #1a9e2e; }
+      .selection-dot.multi   { background: #c47d00; }
+
+      .selection-name {
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        color: #555;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+        transition: color 0.2s;
+      }
+      .selection-name.placeholder { color: #aaa; font-style: italic; font-family: 'DM Sans', sans-serif; }
+
+      /* ── Primary button ── */
       button.primary {
         width: 100%;
         padding: 12px 14px;
@@ -87,7 +121,7 @@
         background-size: 200% 200%;
         color: #fff;
         cursor: pointer;
-        transition: transform 0.1s, box-shadow 0.2s, background-position 0.4s;
+        transition: transform 0.1s, box-shadow 0.2s, background-position 0.4s, opacity 0.2s;
         box-shadow: 0 2px 12px rgba(124, 58, 237, 0.3);
         position: relative;
         overflow: hidden;
@@ -98,16 +132,23 @@
         right: 14px;
         top: 50%;
         transform: translateY(-50%) translateX(0px);
-        transition: transform 0.2s;
+        transition: transform 0.2s, opacity 0.2s;
         font-size: 14px;
       }
-      button.primary:hover {
+      button.primary:not(:disabled):hover {
         background-position: 100% 0;
         box-shadow: 0 4px 20px rgba(124, 58, 237, 0.42);
         transform: scale(1.02);
       }
-      button.primary:hover::after { transform: translateY(-50%) translateX(3px); }
-      button.primary:active { transform: scale(0.98) translateY(0); }
+      button.primary:not(:disabled):hover::after { transform: translateY(-50%) translateX(3px); }
+      button.primary:not(:disabled):active { transform: scale(0.98) translateY(0); }
+
+      button.primary:disabled {
+        opacity: 0.38;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+      button.primary:disabled::after { opacity: 0.5; }
 
       select {
         width: 100%;
@@ -664,10 +705,6 @@
   </head>
 
   <body>
-    <header>
-      <h1>FrameSense</h1>
-      <span class="dot"></span>
-    </header>
 
     <div id="page-main" class="page active">
       <div class="mode-toggle">
@@ -675,15 +712,21 @@
         <button class="mode-btn"        id="btn-flow"  onclick="setMode('flow')">Entire flow</button>
       </div>
 
+      <!-- Selection status, shared across both modes -->
+      <div class="selection-status" id="selection-status">
+        <span class="selection-dot none" id="sel-dot"></span>
+        <span class="selection-name placeholder" id="sel-name">Select a frame in Figma</span>
+      </div>
+
       <div id="panel-frame">
-        <button class="primary" id="analyze">Analyze selection</button>
+        <button class="primary" id="analyze" disabled>Analyze selection</button>
       </div>
 
       <div id="panel-flow" style="display:none">
-        <select id="flow-select">
+        <select id="flow-select" onchange="onFlowSelectChange()">
           <option value="">— select a frame to see flows —</option>
         </select>
-        <button class="primary" id="analyze-flow">Analyze flow</button>
+        <button class="primary" id="analyze-flow" disabled>Analyze flow</button>
       </div>
 
       <div id="output" style="margin-top: 20px;"></div>
@@ -701,12 +744,63 @@
     <script>
       const output = document.getElementById('output');
       let violationData = {};
+      let currentMode = 'frame';
+      // Tracks what the plugin last told us about the selection
+      let selectionState = { count: 0, name: '', hasChildren: false };
 
       window.onload = () => {
         parent.postMessage({ pluginMessage: { type: 'ui-ready' } }, '*');
       };
 
+      // ── Selection status UI ──────────────────────────────────────────────────
+
+      function updateSelectionStatus(count, name, hasChildren) {
+        selectionState = { count, name, hasChildren };
+
+        const dot     = document.getElementById('sel-dot');
+        const nameEl  = document.getElementById('sel-name');
+        const frameBtn = document.getElementById('analyze');
+
+        if (count === 0) {
+          dot.className    = 'selection-dot none';
+          nameEl.className = 'selection-name placeholder';
+          nameEl.textContent = 'Select a frame in Figma';
+          frameBtn.disabled = true;
+        } else if (count > 1) {
+          dot.className    = 'selection-dot multi';
+          nameEl.className = 'selection-name placeholder';
+          nameEl.textContent = `${count} layers selected — select just one`;
+          frameBtn.disabled = true;
+        } else if (!hasChildren) {
+          dot.className    = 'selection-dot multi';
+          nameEl.className = 'selection-name placeholder';
+          nameEl.textContent = `"${name}" has no children`;
+          frameBtn.disabled = true;
+        } else {
+          dot.className    = 'selection-dot ready';
+          nameEl.className = 'selection-name';
+          nameEl.textContent = name;
+          frameBtn.disabled = false;
+        }
+
+        // Flow button state depends on the dropdown too
+        syncFlowButton();
+      }
+
+      function onFlowSelectChange() {
+        syncFlowButton();
+      }
+
+      function syncFlowButton() {
+        const nodeId   = document.getElementById('flow-select').value;
+        const flowBtn  = document.getElementById('analyze-flow');
+        flowBtn.disabled = !nodeId;
+      }
+
+      // ── Mode toggle ──────────────────────────────────────────────────────────
+
       function setMode(mode) {
+        currentMode = mode;
         document.getElementById('panel-frame').style.display = mode === 'frame' ? 'block' : 'none';
         document.getElementById('panel-flow').style.display  = mode === 'flow'  ? 'block' : 'none';
         document.getElementById('btn-frame').classList.toggle('active', mode === 'frame');
@@ -725,6 +819,8 @@
         output.innerHTML = '';
         parent.postMessage({ pluginMessage: { type: 'analyze-flow', nodeId } }, '*');
       };
+
+      // ── Detail page ──────────────────────────────────────────────────────────
 
       function openDetail(key) {
         const data = violationData[key];
@@ -1107,18 +1203,28 @@
         if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy'; }, 1500); }
       }
 
-      // ── MESSAGE HANDLER ──────────────────────────────────────────────────────
+      // ── Message handler ──────────────────────────────────────────────────────
 
       onmessage = (event) => {
         const msg = event.data.pluginMessage;
         if (!msg) return;
 
         if (msg.type === 'flows-list') {
+          // Update selection status display
+          updateSelectionStatus(
+            msg.selectionCount  ?? 0,
+            msg.selectedName    ?? '',
+            msg.hasChildren     ?? false
+          );
+
           const select = document.getElementById('flow-select');
           select.innerHTML = '';
           if (!msg.flows || msg.flows.length === 0) {
             const opt = document.createElement('option');
-            opt.value = ''; opt.textContent = 'No flows found for this selection';
+            opt.value = '';
+            opt.textContent = msg.selectionCount === 1
+              ? 'No prototype flows found for this frame'
+              : 'No flows found for this selection';
             select.appendChild(opt);
           } else {
             const placeholder = document.createElement('option');
@@ -1130,6 +1236,8 @@
               select.appendChild(opt);
             });
           }
+          // Re-sync flow button after dropdown repopulated
+          syncFlowButton();
           return;
         }
 

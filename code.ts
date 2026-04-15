@@ -165,11 +165,29 @@ async function getFlowsForNode(node: BaseNode): Promise<FlowRef[]> {
 
 async function sendFlowsForSelection(): Promise<void> {
   const selection = figma.currentPage.selection;
-  if (selection.length === 1) {
+
+  // Build selection metadata for the UI
+  const selectionCount = selection.length;
+  const selectedName   = selectionCount === 1 ? selection[0].name : '';
+  const hasChildren    = selectionCount === 1 && 'children' in selection[0];
+
+  if (selectionCount === 1) {
     const flows = await getFlowsForNode(selection[0]);
-    figma.ui.postMessage({ type: "flows-list", flows });
+    figma.ui.postMessage({
+      type: 'flows-list',
+      flows,
+      selectionCount,
+      selectedName,
+      hasChildren,
+    });
   } else {
-    figma.ui.postMessage({ type: "flows-list", flows: [] });
+    figma.ui.postMessage({
+      type: 'flows-list',
+      flows: [],
+      selectionCount,
+      selectedName,
+      hasChildren,
+    });
   }
 }
 
